@@ -9,14 +9,56 @@ interface StatusBarConfig {
 export class StatusBarManager {
 	private statusBarItems: Map<string, vscode.StatusBarItem> = new Map();
 	private config: StatusBarConfig;
-	private readonly configKey = 'dedicatedTasks.statusBar';
+	private readonly configFileName = 'dedicated-tasks.json';
 
-	constructor(private context: vscode.ExtensionContext) {
-		// Load saved configuration
-		this.config = this.context.globalState.get<StatusBarConfig>(this.configKey, {
-			itemNames: [],
-			groups: []
-		});
+	constructor() {
+		// Load saved configuration from workspace file (synchronously read on init)
+		this.config = { itemNames: [], groups: [] };
+		this.loadConfigAsync();
+	}
+
+	private async loadConfigAsync(): Promise<void> {
+		this.config = await this.loadConfig();
+	}
+
+	private async loadConfig(): Promise<StatusBarConfig> {
+		const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+		if (!workspaceFolder) {
+			return { itemNames: [], groups: [] };
+		}
+
+		const configUri = vscode.Uri.joinPath(workspaceFolder.uri, '.vscode', this.configFileName);
+
+		try {
+			const content = await vscode.workspace.fs.readFile(configUri);
+			const text = new TextDecoder().decode(content);
+			const parsed = JSON.parse(text);
+			return {
+				itemNames: parsed.statusBar?.itemNames || [],
+				groups: parsed.statusBar?.groups || []
+			};
+		} catch {
+			return { itemNames: [], groups: [] };
+		}
+	}
+
+	private async saveConfig(): Promise<void> {
+		const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+		if (!workspaceFolder) {
+			return;
+		}
+
+		const configUri = vscode.Uri.joinPath(workspaceFolder.uri, '.vscode', this.configFileName);
+		const configData = {
+			statusBar: this.config
+		};
+
+		const content = new TextEncoder().encode(JSON.stringify(configData, null, 2));
+		await vscode.workspace.fs.writeFile(configUri, content);
+	}
+
+	async reloadConfig(): Promise<void> {
+		this.config = await this.loadConfig();
 	}
 
 	updateStatusBar(items: (TaskTreeItem | LaunchConfigItem)[]): void {
@@ -302,7 +344,7 @@ export class StatusBarManager {
 				.map(item => item.groupPath!);
 
 			// Save configuration
-			await this.context.globalState.update(this.configKey, this.config);
+			await this.saveConfig();
 
 			// Refresh status bar
 			this.updateStatusBar(allItems);

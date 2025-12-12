@@ -9,7 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const tasksProvider = new TasksTreeDataProvider();
 
 	// Create status bar manager
-	const statusBarManager = new StatusBarManager(context);
+	const statusBarManager = new StatusBarManager();
 
 	vscode.window.registerTreeDataProvider(
 		'dedicatedTasks.tasksView',
@@ -80,8 +80,24 @@ export function activate(context: vscode.ExtensionContext) {
 		updateStatusBar();
 	});
 
+	// Watch for dedicated-tasks.json changes
+	const configWatcher = vscode.workspace.createFileSystemWatcher('**/.vscode/dedicated-tasks.json');
+	configWatcher.onDidChange(async () => {
+		await statusBarManager.reloadConfig();
+		updateStatusBar();
+	});
+	configWatcher.onDidCreate(async () => {
+		await statusBarManager.reloadConfig();
+		updateStatusBar();
+	});
+	configWatcher.onDidDelete(async () => {
+		await statusBarManager.reloadConfig();
+		updateStatusBar();
+	});
+
 	context.subscriptions.push(tasksJsonWatcher);
 	context.subscriptions.push(launchJsonWatcher);
+	context.subscriptions.push(configWatcher);
 	context.subscriptions.push(statusBarManager);
 }
 

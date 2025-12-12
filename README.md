@@ -145,8 +145,72 @@ Add frequently used tasks and launch configs to the status bar for quick access:
 - You can select entire groups (e.g., all "Build" items) to show multiple related tasks and configs
 - Items in the status bar show their configured icons and labels
 - Hover over a status bar item to see its description
-- Configuration is saved and persists across VS Code sessions
+- Configuration is saved in `.vscode/dedicated-tasks.json` and can be version controlled
 - Tasks and launch configs can be mixed in the same status bar
+
+## Configuration Files
+
+This extension uses the following configuration files in your workspace:
+
+### `.vscode/tasks.json`
+Standard VS Code tasks file with optional `dedicatedTasks` metadata in `options`:
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "npm run build",
+      "options": {
+        "dedicatedTasks": {
+          "label": "$(rocket) Build",
+          "groups": ["Build"],
+          "order": 1
+        }
+      }
+    }
+  ]
+}
+```
+
+### `.vscode/launch.json`
+Standard VS Code launch configurations with optional `dedicatedTasks` metadata at the root level:
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug",
+      "type": "node",
+      "request": "launch",
+      "program": "${file}",
+      "dedicatedTasks": {
+        "label": "$(debug) Debug",
+        "groups": ["Debug"],
+        "order": 1
+      }
+    }
+  ]
+}
+```
+
+### `.vscode/dedicated-tasks.json`
+Extension configuration file (auto-generated when you configure status bar items):
+```json
+{
+  "statusBar": {
+    "itemNames": ["Build", "Debug"],
+    "groups": [["Development", "Build"]]
+  }
+}
+```
+
+**File structure:**
+- `statusBar.itemNames`: Array of task/launch config names to show in status bar
+- `statusBar.groups`: Array of group paths - all items in these groups will be shown
+
+This file can be manually edited or manipulated by scripts/tools. Changes are automatically detected and applied.
 
 ## Getting Started
 
