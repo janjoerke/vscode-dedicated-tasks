@@ -1,0 +1,47 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "npm: install",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "dedicatedTasksUi": {
+          "label": "Install Dependencies",
+          "detail": "Install npm packages",
+          "groups": ["Setup"],
+          "order": 1
+        }
+      }
+    },
+    {
+      "label": "npm: compile",
+      "type": "shell",
+      "command": "npm run compile",
+      "options": {
+        "dedicatedTasksUi": {
+          "label": "Compile Extension",
+          "detail": "Build TypeScript and bundle with esbuild",
+          "groups": ["Build", ["Development", "Build"]],
+          "order": 1
+        }
+      },
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "npm: watch",
+      "type": "shell",
+      "command": "npm run watch",
+      "isBackground": true,
+      "options": {
+        "dedicatedTasksUi": {
+          "label": "Watch Mode",
+          "detail": "Compile on file changes",
+          "groups": [["Development", "Watch"]],
+          "order": 1
+        }
+      },
+      "problemMatcher": "$tsc-watch"
+    }
+  ]
+}

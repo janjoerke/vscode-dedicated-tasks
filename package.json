@@ -1,0 +1,80 @@
+{
+  "name": "dedicated-tasks-ui",
+  "displayName": "Dedicated Tasks UI",
+  "description": "A dedicated UI for managing VS Code tasks with custom configuration",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "dedicatedTasksUi",
+          "title": "Dedicated Tasks",
+          "icon": "resources/tasks-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "dedicatedTasksUi": [
+        {
+          "id": "dedicatedTasksUi.tasksView",
+          "name": "Tasks",
+          "icon": "resources/tasks-icon.svg"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "dedicatedTasksUi.refresh",
+        "title": "Refresh Tasks",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "dedicatedTasksUi.runTask",
+        "title": "Run Task",
+        "icon": "$(play)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "dedicatedTasksUi.refresh",
+          "when": "view == dedicatedTasksUi.tasksView",
+          "group": "navigation"
+        }
+      ]
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": ".vscode/tasks.json",
+        "url": "./schemas/tasks-schema.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm run check-types && node esbuild.js",
+    "check-types": "tsc --noEmit",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && node esbuild.js --production"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.56.0",
+    "esbuild": "^0.19.11",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.3.3"
+  }
+}

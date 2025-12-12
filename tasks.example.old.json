@@ -1,0 +1,2152 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "clean (calculatorlib)",
+      "dependsOn": [],
+      "command": "rmdir",
+      "args": [
+        "/s",
+        "/q",
+        "build",
+        "configured",
+        "CodeCoverage",
+        "test_package\\build",
+        "test_package\\CMakeUserPresets.json"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) clean",
+          "detail": "deletes the build and configure folders",
+          "hide": false
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install release64 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=release\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=release64_dynamic",
+        "-pr:b=release64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install release64",
+          "detail": "installs all dependencies for release build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install release64 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=release\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=release64_static",
+        "-pr:b=release64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install release64 /MT",
+          "detail": "installs all dependencies for release build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install relwithdebinfo64 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=relwithdebinfo\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=relwithdebinfo64_dynamic",
+        "-pr:b=relwithdebinfo64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install relwithdebinfo64",
+          "detail": "installs all dependencies for relwithdebinfo build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install relwithdebinfo64 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=relwithdebinfo\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=relwithdebinfo64_static",
+        "-pr:b=relwithdebinfo64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install relwithdebinfo64 /MT",
+          "detail": "installs all dependencies for relwithdebinfo build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install debug64 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=debug\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=debug64_dynamic",
+        "-pr:b=debug64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install debug64",
+          "detail": "installs all dependencies for debug build and 64 bit architecture",
+          "hide": false
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install debug64 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=debug\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=debug64_static",
+        "-pr:b=debug64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install debug64 /MT",
+          "detail": "installs all dependencies for debug build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install release32 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=release\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=release32_dynamic",
+        "-pr:b=release64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install release32",
+          "detail": "installs all dependencies for release build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install release32 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=release\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=release32_static",
+        "-pr:b=release64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install release32 /MT",
+          "detail": "installs all dependencies for release build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install relwithdebinfo32 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=relwithdebinfo\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=relwithdebinfo32_dynamic",
+        "-pr:b=relwithdebinfo64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install relwithdebinfo32",
+          "detail": "installs all dependencies for relwithdebinfo build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install relwithdebinfo32 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=relwithdebinfo\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=relwithdebinfo32_static",
+        "-pr:b=relwithdebinfo64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install relwithdebinfo32 /MT",
+          "detail": "installs all dependencies for relwithdebinfo build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install debug32 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=debug\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=debug32_dynamic",
+        "-pr:b=debug64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install debug32",
+          "detail": "installs all dependencies for debug build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install debug32 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=debug\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=debug32_static",
+        "-pr:b=debug64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install debug32 /MT",
+          "detail": "installs all dependencies for debug build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja release64 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=release\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=release64_dynamic",
+        "-pr:b=release64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja release64",
+          "detail": "installs all dependencies for release build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja release64 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=release\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=release64_static",
+        "-pr:b=release64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja release64 /MT",
+          "detail": "installs all dependencies for release build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja relwithdebinfo64 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=relwithdebinfo\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=relwithdebinfo64_dynamic",
+        "-pr:b=relwithdebinfo64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja relwithdebinfo64",
+          "detail": "installs all dependencies for relwithdebinfo build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja relwithdebinfo64 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=relwithdebinfo\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=relwithdebinfo64_static",
+        "-pr:b=relwithdebinfo64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja relwithdebinfo64 /MT",
+          "detail": "installs all dependencies for relwithdebinfo build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja debug64 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=debug\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=debug64_dynamic",
+        "-pr:b=debug64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja debug64",
+          "detail": "installs all dependencies for debug build and 64 bit architecture",
+          "hide": false
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja debug64 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=debug\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=debug64_static",
+        "-pr:b=debug64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja debug64 /MT",
+          "detail": "installs all dependencies for debug build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja release32 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=release\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=release32_dynamic",
+        "-pr:b=release64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja release32",
+          "detail": "installs all dependencies for release build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja release32 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=release\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=release32_static",
+        "-pr:b=release64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja release32 /MT",
+          "detail": "installs all dependencies for release build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja relwithdebinfo32 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=relwithdebinfo\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=relwithdebinfo32_dynamic",
+        "-pr:b=relwithdebinfo64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja relwithdebinfo32",
+          "detail": "installs all dependencies for relwithdebinfo build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja relwithdebinfo32 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=relwithdebinfo\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=relwithdebinfo32_static",
+        "-pr:b=relwithdebinfo64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja relwithdebinfo32 /MT",
+          "detail": "installs all dependencies for relwithdebinfo build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja debug32 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=debug\"",
+        "-s=\"compiler.runtime=dynamic\"",
+        "-pr:h=debug32_dynamic",
+        "-pr:b=debug64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja debug32",
+          "detail": "installs all dependencies for debug build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan install ninja debug32 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "install",
+        ".",
+        "--build=missing",
+        "--update=conan-extension",
+        "-o=\"&:gtest=True\"",
+        "-o=\"&:sonar=True\"",
+        "-o=\"&:clangformat=True\"",
+        "-o=\"&:clangtidy=True\"",
+        "-o=\"&:cpplint=True\"",
+        "-o=\"&:doxygen=True\"",
+        "-o=\"&:graphviz=True\"",
+        "-o=\"*:presets=debug\"",
+        "-s=\"compiler.runtime=static\"",
+        "-pr:h=debug32_static",
+        "-pr:b=debug64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(cloud-download) install ninja debug32 /MT",
+          "detail": "installs all dependencies for debug build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "cmake configure (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--preset",
+        "configure"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(tools) configure",
+          "detail": "configures the build system using CMake",
+          "hide": false
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "cmake build release (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "release"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(gear) build release",
+          "detail": "configures the build system using CMake",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "cmake build relwithdebinfo (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "relwithdebinfo"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(gear) build relwithdebinfo",
+          "detail": "configures the build system using CMake",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "cmake build debug (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "debug"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(gear) build debug",
+          "detail": "configures the build system using CMake",
+          "hide": false
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "test release (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & ctest",
+      "args": [
+        "--preset",
+        "release"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(beaker) test release",
+          "detail": "runs tests in release mode",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "test relwithdebinfo (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & ctest",
+      "args": [
+        "--preset",
+        "relwithdebinfo"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(beaker) test relwithdebinfo",
+          "detail": "runs tests in relwithdebinfo mode",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "test debug (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & ctest",
+      "args": [
+        "--preset",
+        "debug"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(beaker) test debug",
+          "detail": "runs tests in debug mode",
+          "hide": false
+        }
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove release64 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Release AND arch=x86_64 AND compiler.runtime=dynamic\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove release64",
+          "detail": "removes the current conan package from local cache for release build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove release64 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Release AND arch=x86_64 AND compiler.runtime=static\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove release64 /MT",
+          "detail": "removes the current conan package from local cache for release build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove relwithdebinfo64 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Relwithdebinfo AND arch=x86_64 AND compiler.runtime=dynamic\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove relwithdebinfo64",
+          "detail": "removes the current conan package from local cache for relwithdebinfo build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove relwithdebinfo64 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Relwithdebinfo AND arch=x86_64 AND compiler.runtime=static\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove relwithdebinfo64 /MT",
+          "detail": "removes the current conan package from local cache for relwithdebinfo build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove debug64 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Debug AND arch=x86_64 AND compiler.runtime=dynamic\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove debug64",
+          "detail": "removes the current conan package from local cache for debug build and 64 bit architecture",
+          "hide": false
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove debug64 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Debug AND arch=x86_64 AND compiler.runtime=static\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove debug64 /MT",
+          "detail": "removes the current conan package from local cache for debug build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove release32 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Release AND arch=x86 AND compiler.runtime=dynamic\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove release32",
+          "detail": "removes the current conan package from local cache for release build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove release32 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Release AND arch=x86 AND compiler.runtime=static\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove release32 /MT",
+          "detail": "removes the current conan package from local cache for release build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove relwithdebinfo32 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Relwithdebinfo AND arch=x86 AND compiler.runtime=dynamic\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove relwithdebinfo32",
+          "detail": "removes the current conan package from local cache for relwithdebinfo build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove relwithdebinfo32 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Relwithdebinfo AND arch=x86 AND compiler.runtime=static\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove relwithdebinfo32 /MT",
+          "detail": "removes the current conan package from local cache for relwithdebinfo build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove debug32 (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Debug AND arch=x86 AND compiler.runtime=dynamic\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove debug32",
+          "detail": "removes the current conan package from local cache for debug build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan remove debug32 /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "remove",
+        "-c",
+        "calculatorlib/5.1.0@cmaketutorial:*",
+        "--package-query=\"build_type=Debug AND arch=x86 AND compiler.runtime=static\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(trash) remove debug32 /MT",
+          "detail": "removes the current conan package from local cache for debug build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create release64  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=release64_dynamic",
+        "-pr:b=release64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create release64",
+          "detail": "creates the conan package for release build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create release64  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=release64_static",
+        "-pr:b=release64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create release64",
+          "detail": "creates the conan package for release build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create relwithdebinfo64  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=relwithdebinfo64_dynamic",
+        "-pr:b=relwithdebinfo64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create relwithdebinfo64",
+          "detail": "creates the conan package for relwithdebinfo build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create relwithdebinfo64  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=relwithdebinfo64_static",
+        "-pr:b=relwithdebinfo64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create relwithdebinfo64",
+          "detail": "creates the conan package for relwithdebinfo build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create debug64  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=debug64_dynamic",
+        "-pr:b=debug64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create debug64",
+          "detail": "creates the conan package for debug build and 64 bit architecture",
+          "hide": false
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create debug64  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=debug64_static",
+        "-pr:b=debug64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create debug64",
+          "detail": "creates the conan package for debug build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create release32  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=release32_dynamic",
+        "-pr:b=release64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create release32",
+          "detail": "creates the conan package for release build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create release32  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=release32_static",
+        "-pr:b=release64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create release32",
+          "detail": "creates the conan package for release build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create relwithdebinfo32  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=relwithdebinfo32_dynamic",
+        "-pr:b=relwithdebinfo64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create relwithdebinfo32",
+          "detail": "creates the conan package for relwithdebinfo build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create relwithdebinfo32  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=relwithdebinfo32_static",
+        "-pr:b=relwithdebinfo64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create relwithdebinfo32",
+          "detail": "creates the conan package for relwithdebinfo build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create debug32  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=debug32_dynamic",
+        "-pr:b=debug64_dynamic"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create debug32",
+          "detail": "creates the conan package for debug build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create debug32  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=debug32_static",
+        "-pr:b=debug64_static"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create debug32",
+          "detail": "creates the conan package for debug build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja release64  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=release64_dynamic",
+        "-pr:b=release64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja release64",
+          "detail": "creates the conan package for release build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja release64  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=release64_static",
+        "-pr:b=release64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja release64",
+          "detail": "creates the conan package for release build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja relwithdebinfo64  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=relwithdebinfo64_dynamic",
+        "-pr:b=relwithdebinfo64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja relwithdebinfo64",
+          "detail": "creates the conan package for relwithdebinfo build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja relwithdebinfo64  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=relwithdebinfo64_static",
+        "-pr:b=relwithdebinfo64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja relwithdebinfo64",
+          "detail": "creates the conan package for relwithdebinfo build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja debug64  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=debug64_dynamic",
+        "-pr:b=debug64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja debug64",
+          "detail": "creates the conan package for debug build and 64 bit architecture",
+          "hide": false
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja debug64  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=debug64_static",
+        "-pr:b=debug64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja debug64",
+          "detail": "creates the conan package for debug build and 64 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja release32  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=release32_dynamic",
+        "-pr:b=release64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja release32",
+          "detail": "creates the conan package for release build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja release32  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=release32_static",
+        "-pr:b=release64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja release32",
+          "detail": "creates the conan package for release build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja relwithdebinfo32  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=relwithdebinfo32_dynamic",
+        "-pr:b=relwithdebinfo64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja relwithdebinfo32",
+          "detail": "creates the conan package for relwithdebinfo build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja relwithdebinfo32  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=relwithdebinfo32_static",
+        "-pr:b=relwithdebinfo64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja relwithdebinfo32",
+          "detail": "creates the conan package for relwithdebinfo build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja debug32  (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=debug32_dynamic",
+        "-pr:b=debug64_dynamic",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja debug32",
+          "detail": "creates the conan package for debug build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "conan create ninja debug32  /MT (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "create",
+        ".",
+        "-pr:h=debug32_static",
+        "-pr:b=debug64_static",
+        "--conf=\"*:tools.cmake.cmaketoolchain:generator=Ninja Multi-Config\""
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(package) create ninja debug32",
+          "detail": "creates the conan package for debug build and 32 bit architecture",
+          "hide": true
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "codecoverage (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "codecoverage"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(graph) codecoverage",
+          "detail": "runs the code coverage analysis",
+          "hide": false
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "sonar scan (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "sonar"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(shield) sonar scan",
+          "detail": "runs sonar scan analysis",
+          "hide": false
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "compilation database (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "compiledb"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(database) compilation database",
+          "detail": "creates a compile_commands.json file",
+          "hide": false
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "clangtidy (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "clangtidy"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(lightbulb) clang-tidy",
+          "detail": "runs clang-tidy on the C++ code",
+          "hide": false
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "doxygen (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "doxygen"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(book) doxygen",
+          "detail": "generates a doxygen documentation",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "open doxygen doc (calculatorlib)",
+      "dependsOn": [],
+      "command": "start",
+      "args": [
+        "msedge",
+        "C:\\Users\\joerkeja\\git\\BLD\\CMake\\Tutorial\\CMakeTutorial-CalculatorLib\\build\\generators\\..\\..\\docs\\html\\index.html"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(book) open doxygen doc",
+          "detail": "opens the generated doxygen documentation",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "packagetest (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "packagetest"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(folder) packagetest",
+          "detail": "generates a package test project located in ./test_package",
+          "hide": false
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "dependencies (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "graph"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(list-tree) dependency tree",
+          "detail": "generates a dependency tree using graphviz",
+          "hide": false
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "editable add (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "editable",
+        "add",
+        "."
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(keyboard) editable add",
+          "detail": "adds the editable mode for this package",
+          "hide": false
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "editable remove (calculatorlib)",
+      "dependsOn": [],
+      "command": "conan",
+      "args": [
+        "editable",
+        "remove",
+        "."
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(debug-disconnect) editable remove",
+          "detail": "remove the editable mode for this package",
+          "hide": false
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "clangformat (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "clangformat"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(pencil) clang-format",
+          "detail": "formats the C++ code using clang-format",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "cmakeformat (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "cmakeformat"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(pencil) cmake-format",
+          "detail": "formats the CMake code using cmake-format",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "cpplint (calculatorlib)",
+      "dependsOn": [],
+      "command": "build\\generators\\conanbuild.bat & cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "cpplint"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "statusbar": {
+          "label": "$(lightbulb) cpplint",
+          "detail": "runs cpplint on the C++ code",
+          "hide": true
+        }
+      },
+      "group": "none",
+      "problemMatcher": []
+    }
+  ]
+}

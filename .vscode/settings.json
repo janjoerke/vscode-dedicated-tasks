@@ -1,0 +1,11 @@
+{
+  "editor.insertSpaces": false,
+  "editor.detectIndentation": false,
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  }
+}
