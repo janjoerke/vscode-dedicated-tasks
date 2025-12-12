@@ -81,12 +81,18 @@
       {
         "fileMatch": ".vscode/tasks.json",
         "url": "./schemas/tasks-schema.json"
-      },
-      {
-        "fileMatch": ".vscode/launch.json",
-        "url": "./schemas/launch-schema.json"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Dedicated Tasks",
+      "properties": {
+        "dedicatedTasks.suppressLaunchJsonWarnings": {
+          "type": "boolean",
+          "default": false,
+          "description": "Suppress validation warnings for dedicatedTasks property in launch.json (VS Code's built-in schema doesn't recognize custom properties)"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

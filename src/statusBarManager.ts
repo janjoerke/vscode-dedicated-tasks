@@ -109,6 +109,13 @@ export class StatusBarManager {
 			}
 		}
 
+		// Sort filtered items by order field (same as tree view)
+		filtered.sort((a, b) => {
+			const orderA = a.config.order ?? 0;
+			const orderB = b.config.order ?? 0;
+			return orderA - orderB;
+		});
+
 		return filtered;
 	}
 
