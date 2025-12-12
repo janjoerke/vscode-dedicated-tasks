@@ -1,8 +1,21 @@
 {
-  "name": "dedicated-tasks-ui",
-  "displayName": "Dedicated Tasks UI",
-  "description": "A dedicated UI for managing VS Code tasks with custom configuration",
+  "name": "dedicated-tasks",
+  "displayName": "Dedicated tasks",
+  "description": "Organize VS Code tasks with hierarchical groups, icons, and status bar quick-access",
   "version": "0.0.1",
+  "publisher": "your-publisher-name",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/dedicated-tasks"
+  },
+  "keywords": [
+    "tasks",
+    "task runner",
+    "productivity",
+    "organization",
+    "status bar",
+    "task manager"
+  ],
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -15,16 +28,16 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "dedicatedTasksUi",
+          "id": "dedicatedTasks",
           "title": "Dedicated Tasks",
           "icon": "resources/tasks-icon.svg"
         }
       ]
     },
     "views": {
-      "dedicatedTasksUi": [
+      "dedicatedTasks": [
         {
-          "id": "dedicatedTasksUi.tasksView",
+          "id": "dedicatedTasks.tasksView",
           "name": "Tasks",
           "icon": "resources/tasks-icon.svg"
         }
@@ -32,21 +45,31 @@
     },
     "commands": [
       {
-        "command": "dedicatedTasksUi.refresh",
+        "command": "dedicatedTasks.refresh",
         "title": "Refresh Tasks",
         "icon": "$(refresh)"
       },
       {
-        "command": "dedicatedTasksUi.runTask",
+        "command": "dedicatedTasks.runTask",
         "title": "Run Task",
         "icon": "$(play)"
+      },
+      {
+        "command": "dedicatedTasks.configureStatusBar",
+        "title": "Configure Status Bar Tasks",
+        "icon": "$(settings-gear)"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "dedicatedTasksUi.refresh",
-          "when": "view == dedicatedTasksUi.tasksView",
+          "command": "dedicatedTasks.refresh",
+          "when": "view == dedicatedTasks.tasksView",
+          "group": "navigation"
+        },
+        {
+          "command": "dedicatedTasks.configureStatusBar",
+          "when": "view == dedicatedTasks.tasksView",
           "group": "navigation"
         }
       ]

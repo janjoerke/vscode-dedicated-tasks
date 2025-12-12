@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export interface DedicatedTasksUiConfig {
+export interface DedicatedTasksConfig {
 	label?: string;
 	detail?: string;
 	hide?: boolean;
@@ -9,13 +9,13 @@ export interface DedicatedTasksUiConfig {
 }
 
 export interface TaskWithConfig extends vscode.Task {
-	dedicatedUiConfig?: DedicatedTasksUiConfig;
+	dedicatedUiConfig?: DedicatedTasksConfig;
 }
 
 export class TaskTreeItem extends vscode.TreeItem {
 	constructor(
 		public readonly task: vscode.Task,
-		public readonly config: DedicatedTasksUiConfig
+		public readonly config: DedicatedTasksConfig
 	) {
 		const labelText = config.label || task.name;
 
@@ -31,7 +31,7 @@ export class TaskTreeItem extends vscode.TreeItem {
 		this.contextValue = 'task';
 
 		this.command = {
-			command: 'dedicatedTasksUi.runTask',
+			command: 'dedicatedTasks.runTask',
 			title: 'Run Task',
 			arguments: [task]
 		};
@@ -81,6 +81,10 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 
 	refresh(): void {
 		this._onDidChangeTreeData.fire();
+	}
+
+	async getAllTasks(): Promise<TaskTreeItem[]> {
+		return this.getDedicatedTasks();
 	}
 
 	getTreeItem(element: TaskTreeItem | GroupTreeItem): vscode.TreeItem {
@@ -191,7 +195,7 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 		return dedicatedTasks;
 	}
 
-	private async getDedicatedTaskConfig(task: vscode.Task): Promise<DedicatedTasksUiConfig | undefined> {
+	private async getDedicatedTaskConfig(task: vscode.Task): Promise<DedicatedTasksConfig | undefined> {
 		// Get the workspace folder for this task
 		let workspaceFolder: vscode.WorkspaceFolder | undefined;
 
@@ -219,8 +223,8 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 				// Find the matching task by label
 				const taskDef = tasksConfig.tasks.find((t: any) => t.label === task.name);
 
-				if (taskDef && taskDef.options && taskDef.options.dedicatedTasksUi) {
-					return taskDef.options.dedicatedTasksUi;
+				if (taskDef && taskDef.options && taskDef.options.dedicatedTasks) {
+					return taskDef.options.dedicatedTasks;
 				}
 			}
 		} catch (error) {

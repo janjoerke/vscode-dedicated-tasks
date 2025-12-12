@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "npm install",
       "options": {
-        "dedicatedTasksUi": {
+        "dedicatedTasks": {
           "label": "Install Dependencies",
           "detail": "Install npm packages",
           "groups": ["Setup"],
@@ -19,7 +19,7 @@
       "type": "shell",
       "command": "npm run compile",
       "options": {
-        "dedicatedTasksUi": {
+        "dedicatedTasks": {
           "label": "Compile Extension",
           "detail": "Build TypeScript and bundle with esbuild",
           "groups": ["Build", ["Development", "Build"]],
@@ -34,7 +34,7 @@
       "command": "npm run watch",
       "isBackground": true,
       "options": {
-        "dedicatedTasksUi": {
+        "dedicatedTasks": {
           "label": "Watch Mode",
           "detail": "Compile on file changes",
           "groups": [["Development", "Watch"]],
