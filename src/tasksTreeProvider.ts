@@ -12,10 +12,13 @@ export interface TaskWithConfig extends vscode.Task {
 	dedicatedUiConfig?: DedicatedTasksConfig;
 }
 
+export type ActionItemType = 'task' | 'launch';
+
 export class TaskTreeItem extends vscode.TreeItem {
 	constructor(
 		public readonly task: vscode.Task,
-		public readonly config: DedicatedTasksConfig
+		public readonly config: DedicatedTasksConfig,
+		public readonly itemType: ActionItemType = 'task'
 	) {
 		const labelText = config.label || task.name;
 
@@ -41,57 +44,89 @@ export class TaskTreeItem extends vscode.TreeItem {
 	}
 }
 
+export class LaunchConfigItem extends vscode.TreeItem {
+	constructor(
+		public readonly launchConfig: { name: string; folder: vscode.WorkspaceFolder },
+		public readonly config: DedicatedTasksConfig,
+		public readonly itemType: ActionItemType = 'launch'
+	) {
+		const labelText = config.label || launchConfig.name;
+
+		// Extract icon from label (format: "$(iconName) text")
+		const iconMatch = labelText.match(/^\$\(([^)]+)\)\s*/);
+		const icon = iconMatch ? iconMatch[1] : 'debug-start';
+		const displayLabel = iconMatch ? labelText.substring(iconMatch[0].length) : labelText;
+
+		super(displayLabel, vscode.TreeItemCollapsibleState.None);
+
+		this.description = config.detail || '';
+		this.tooltip = `${displayLabel}${config.detail ? '\n' + config.detail : ''}`;
+		this.contextValue = 'launchConfig';
+
+		this.command = {
+			command: 'dedicatedTasks.runLaunchConfig',
+			title: 'Run Launch Configuration',
+			arguments: [launchConfig.name, launchConfig.folder]
+		};
+
+		// Set icon from label or default to debug-start
+		this.iconPath = new vscode.ThemeIcon(icon);
+	}
+}
+
 export class GroupTreeItem extends vscode.TreeItem {
 	constructor(
 		public readonly label: string,
-		public readonly children: (TaskTreeItem | GroupTreeItem)[],
+		public readonly children: (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[],
 		public readonly path: string[]
 	) {
 		super(label, vscode.TreeItemCollapsibleState.Expanded);
 
 		this.contextValue = 'group';
 
-		// Count tasks recursively
-		const taskCount = this.countTasks(children);
-		if (taskCount > 0) {
-			this.description = `${taskCount} task${taskCount !== 1 ? 's' : ''}`;
+		// Count items recursively
+		const itemCount = this.countItems(children);
+		if (itemCount > 0) {
+			this.description = `${itemCount} item${itemCount !== 1 ? 's' : ''}`;
 		}
 
 		this.iconPath = new vscode.ThemeIcon('folder');
 	}
 
-	private countTasks(items: (TaskTreeItem | GroupTreeItem)[]): number {
+	private countItems(items: (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[]): number {
 		let count = 0;
 		for (const item of items) {
-			if (item instanceof TaskTreeItem) {
+			if (item instanceof TaskTreeItem || item instanceof LaunchConfigItem) {
 				count++;
 			} else if (item instanceof GroupTreeItem) {
-				count += this.countTasks(item.children);
+				count += this.countItems(item.children);
 			}
 		}
 		return count;
 	}
 }
 
-export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeItem | GroupTreeItem> {
-	private _onDidChangeTreeData: vscode.EventEmitter<TaskTreeItem | GroupTreeItem | undefined | null | void> =
-		new vscode.EventEmitter<TaskTreeItem | GroupTreeItem | undefined | null | void>();
-	readonly onDidChangeTreeData: vscode.Event<TaskTreeItem | GroupTreeItem | undefined | null | void> =
+export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeItem | LaunchConfigItem | GroupTreeItem> {
+	private _onDidChangeTreeData: vscode.EventEmitter<TaskTreeItem | LaunchConfigItem | GroupTreeItem | undefined | null | void> =
+		new vscode.EventEmitter<TaskTreeItem | LaunchConfigItem | GroupTreeItem | undefined | null | void>();
+	readonly onDidChangeTreeData: vscode.Event<TaskTreeItem | LaunchConfigItem | GroupTreeItem | undefined | null | void> =
 		this._onDidChangeTreeData.event;
 
 	refresh(): void {
 		this._onDidChangeTreeData.fire();
 	}
 
-	async getAllTasks(): Promise<TaskTreeItem[]> {
-		return this.getDedicatedTasks();
+	async getAllTasks(): Promise<(TaskTreeItem | LaunchConfigItem)[]> {
+		const tasks = await this.getDedicatedTasks();
+		const launchConfigs = await this.getDedicatedLaunchConfigs();
+		return [...tasks, ...launchConfigs];
 	}
 
-	getTreeItem(element: TaskTreeItem | GroupTreeItem): vscode.TreeItem {
+	getTreeItem(element: TaskTreeItem | LaunchConfigItem | GroupTreeItem): vscode.TreeItem {
 		return element;
 	}
 
-	async getChildren(element?: TaskTreeItem | GroupTreeItem): Promise<(TaskTreeItem | GroupTreeItem)[]> {
+	async getChildren(element?: TaskTreeItem | LaunchConfigItem | GroupTreeItem): Promise<(TaskTreeItem | LaunchConfigItem | GroupTreeItem)[]> {
 		if (!vscode.workspace.workspaceFolders) {
 			return [];
 		}
@@ -108,25 +143,27 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 		return [];
 	}
 
-	private async buildHierarchy(): Promise<(TaskTreeItem | GroupTreeItem)[]> {
+	private async buildHierarchy(): Promise<(TaskTreeItem | LaunchConfigItem | GroupTreeItem)[]> {
 		const tasks = await this.getDedicatedTasks();
+		const launchConfigs = await this.getDedicatedLaunchConfigs();
+		const allItems = [...tasks, ...launchConfigs];
 
 		// Build a hierarchy tree structure
 		interface HierarchyNode {
 			children: Map<string, HierarchyNode>;
-			tasks: TaskTreeItem[];
+			items: (TaskTreeItem | LaunchConfigItem)[];
 			path: string[];
 		}
 
 		const root: HierarchyNode = {
 			children: new Map(),
-			tasks: [],
+			items: [],
 			path: []
 		};
 
-		// Insert each task into all its group paths
-		for (const taskItem of tasks) {
-			for (const groupPath of taskItem.config.groups) {
+		// Insert each item (task or launch config) into all its group paths
+		for (const item of allItems) {
+			for (const groupPath of item.config.groups) {
 				// Normalize group path to array
 				const pathArray = typeof groupPath === 'string' ? [groupPath] : groupPath;
 
@@ -140,21 +177,21 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 					if (!currentNode.children.has(segment)) {
 						currentNode.children.set(segment, {
 							children: new Map(),
-							tasks: [],
+							items: [],
 							path: currentPath
 						});
 					}
 					currentNode = currentNode.children.get(segment)!;
 				}
 
-				// Add task to the leaf node
-				currentNode.tasks.push(taskItem);
+				// Add item to the leaf node
+				currentNode.items.push(item);
 			}
 		}
 
 		// Convert hierarchy tree to TreeItems
-		const convertNode = (node: HierarchyNode): (TaskTreeItem | GroupTreeItem)[] => {
-			const items: (TaskTreeItem | GroupTreeItem)[] = [];
+		const convertNode = (node: HierarchyNode): (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[] => {
+			const items: (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[] = [];
 
 			// Add subgroups first (sorted alphabetically)
 			const sortedGroups = Array.from(node.children.entries())
@@ -165,14 +202,14 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 				items.push(new GroupTreeItem(name, childItems, childNode.path));
 			}
 
-			// Then add tasks (sorted by order)
-			const sortedTasks = [...node.tasks].sort((a, b) => {
+			// Then add items (tasks and launch configs sorted by order)
+			const sortedItems = [...node.items].sort((a, b) => {
 				const orderA = a.config.order ?? 0;
 				const orderB = b.config.order ?? 0;
 				return orderA - orderB;
 			});
 
-			items.push(...sortedTasks);
+			items.push(...sortedItems);
 
 			return items;
 		};
@@ -246,5 +283,40 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 		} catch {
 			return undefined;
 		}
+	}
+
+	private async getDedicatedLaunchConfigs(): Promise<LaunchConfigItem[]> {
+		const dedicatedConfigs: LaunchConfigItem[] = [];
+
+		if (!vscode.workspace.workspaceFolders) {
+			return dedicatedConfigs;
+		}
+
+		for (const folder of vscode.workspace.workspaceFolders) {
+			const launchJsonUri = vscode.Uri.joinPath(folder.uri, '.vscode', 'launch.json');
+
+			try {
+				const document = await vscode.workspace.openTextDocument(launchJsonUri);
+				const text = document.getText();
+				const launchConfig = this.parseJsonWithComments(text);
+
+				if (launchConfig && launchConfig.configurations && Array.isArray(launchConfig.configurations)) {
+					for (const config of launchConfig.configurations) {
+						if (config.dedicatedTasks && !config.dedicatedTasks.hide) {
+							const dedicatedConfig = config.dedicatedTasks as DedicatedTasksConfig;
+							dedicatedConfigs.push(new LaunchConfigItem(
+								{ name: config.name, folder },
+								dedicatedConfig
+							));
+						}
+					}
+				}
+			} catch (error) {
+				// launch.json doesn't exist or can't be read
+				continue;
+			}
+		}
+
+		return dedicatedConfigs;
 	}
 }

@@ -31,7 +31,11 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.tasks.executeTask(task);
 		})
 	);
-
+	context.subscriptions.push(
+		vscode.commands.registerCommand('dedicatedTasks.runLaunchConfig', async (configName: string, folder: vscode.WorkspaceFolder) => {
+			await vscode.debug.startDebugging(folder, configName);
+		})
+	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('dedicatedTasks.refresh', () => {
 			tasksProvider.refresh();
@@ -61,7 +65,23 @@ export function activate(context: vscode.ExtensionContext) {
 		updateStatusBar();
 	});
 
+	// Watch for launch.json changes
+	const launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/.vscode/launch.json');
+	launchJsonWatcher.onDidChange(() => {
+		tasksProvider.refresh();
+		updateStatusBar();
+	});
+	launchJsonWatcher.onDidCreate(() => {
+		tasksProvider.refresh();
+		updateStatusBar();
+	});
+	launchJsonWatcher.onDidDelete(() => {
+		tasksProvider.refresh();
+		updateStatusBar();
+	});
+
 	context.subscriptions.push(tasksJsonWatcher);
+	context.subscriptions.push(launchJsonWatcher);
 	context.subscriptions.push(statusBarManager);
 }
 

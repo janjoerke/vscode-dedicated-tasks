@@ -53,8 +53,11 @@
         "command": "dedicatedTasks.runTask",
         "title": "Run Task",
         "icon": "$(play)"
-      },
-      {
+      },      {
+        "command": "dedicatedTasks.runLaunchConfig",
+        "title": "Run Launch Configuration",
+        "icon": "$(debug-start)"
+      },      {
         "command": "dedicatedTasks.configureStatusBar",
         "title": "Configure Status Bar Tasks",
         "icon": "$(settings-gear)"
@@ -78,6 +81,10 @@
       {
         "fileMatch": ".vscode/tasks.json",
         "url": "./schemas/tasks-schema.json"
+      },
+      {
+        "fileMatch": ".vscode/launch.json",
+        "url": "./schemas/launch-schema.json"
       }
     ]
   },

@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { TaskTreeItem } from './tasksTreeProvider';
+import { TaskTreeItem, LaunchConfigItem } from './tasksTreeProvider';
 
 interface StatusBarConfig {
-	taskLabels: string[];  // Task labels to show
-	groups: string[][];    // Group paths to show (all tasks in these groups)
+	itemNames: string[];  // Item names (task or launch config) to show
+	groups: string[][];    // Group paths to show (all items in these groups)
 }
 
 export class StatusBarManager {
@@ -14,84 +14,96 @@ export class StatusBarManager {
 	constructor(private context: vscode.ExtensionContext) {
 		// Load saved configuration
 		this.config = this.context.globalState.get<StatusBarConfig>(this.configKey, {
-			taskLabels: [],
+			itemNames: [],
 			groups: []
 		});
 	}
 
-	updateStatusBar(tasks: TaskTreeItem[]): void {
+	updateStatusBar(items: (TaskTreeItem | LaunchConfigItem)[]): void {
 		// Clear existing status bar items
 		this.clearStatusBar();
 
-		// Filter tasks based on configuration
-		const tasksToShow = this.filterTasksForStatusBar(tasks);
+		// Filter items based on configuration
+		const itemsToShow = this.filterItemsForStatusBar(items);
 
 		// Create status bar items
 		let priority = 1000;
-		for (const taskItem of tasksToShow) {
-			const item = vscode.window.createStatusBarItem(
+		for (const item of itemsToShow) {
+			const statusBarItem = vscode.window.createStatusBarItem(
 				vscode.StatusBarAlignment.Left,
 				priority--
 			);
 
-			// Extract icon and label
-			const labelText = taskItem.config.label || taskItem.task.name;
+			// Get name and label depending on item type
+			const itemName = item instanceof TaskTreeItem ? item.task.name : item.launchConfig.name;
+			const labelText = item.config.label || itemName;
 			const iconMatch = labelText.match(/^\$\(([^)]+)\)\s*/);
 			const icon = iconMatch ? iconMatch[1] : '';
 			const displayLabel = iconMatch ? labelText.substring(iconMatch[0].length) : labelText;
 
 			// Set status bar item properties
-			item.text = icon ? `$(${icon}) ${displayLabel}` : displayLabel;
-			item.tooltip = new vscode.MarkdownString(
-				`**${displayLabel}**\n\n${taskItem.config.detail || ''}\n\n---\n\n` +
+			statusBarItem.text = icon ? `$(${icon}) ${displayLabel}` : displayLabel;
+			statusBarItem.tooltip = new vscode.MarkdownString(
+				`**${displayLabel}**\n\n${item.config.detail || ''}\n\n---\n\n` +
 				`• Click to run\n` +
 				`• Right-click to configure status bar`
 			);
-			item.command = {
-				command: 'dedicatedTasks.runTask',
-				arguments: [taskItem.task],
-				title: 'Run Task'
-			};
 
-			// Store task label as ID
-			const taskId = taskItem.task.name;
-			this.statusBarItems.set(taskId, item);
-			item.show();
+			if (item instanceof TaskTreeItem) {
+				statusBarItem.command = {
+					command: 'dedicatedTasks.runTask',
+					arguments: [item.task],
+					title: 'Run Task'
+				};
+			} else {
+				statusBarItem.command = {
+					command: 'dedicatedTasks.runLaunchConfig',
+					arguments: [item.launchConfig.name, item.launchConfig.folder],
+					title: 'Run Launch Configuration'
+				};
+			}
+
+			// Store with unique ID
+			const itemId = itemName;
+			this.statusBarItems.set(itemId, statusBarItem);
+			statusBarItem.show();
 		}
 	}
 
-	private filterTasksForStatusBar(tasks: TaskTreeItem[]): TaskTreeItem[] {
-		const filtered: TaskTreeItem[] = [];
-		const seenTasks = new Set<string>();
+	private filterItemsForStatusBar(items: (TaskTreeItem | LaunchConfigItem)[]): (TaskTreeItem | LaunchConfigItem)[] {
+		const filtered: (TaskTreeItem | LaunchConfigItem)[] = [];
+		const seenItems = new Set<string>();
 
-		for (const task of tasks) {
+		for (const item of items) {
+			const itemName = item instanceof TaskTreeItem ? item.task.name : item.launchConfig.name;
+
 			// Skip if already added
-			if (seenTasks.has(task.task.name)) {
+			if (seenItems.has(itemName)) {
 				continue;
 			}
 
-			// Check if task label is in the list
-			if (this.config.taskLabels.includes(task.task.name)) {
-				filtered.push(task);
-				seenTasks.add(task.task.name);
+			// Check if item name is in the list
+			if (this.config.itemNames.includes(itemName)) {
+				filtered.push(item);
+				seenItems.add(itemName);
 				continue;
 			}
 
-			// Check if any of task's groups match or are children of configured groups
-			for (const taskGroup of task.config.groups) {
-				const taskGroupPath = Array.isArray(taskGroup) ? taskGroup : [taskGroup];
+			// Check if any of item's groups match or are children of configured groups
+			for (const itemGroup of item.config.groups) {
+				const itemGroupPath = Array.isArray(itemGroup) ? itemGroup : [itemGroup];
 
 				for (const configGroup of this.config.groups) {
-					// Check if task's group path starts with config group path
+					// Check if item's group path starts with config group path
 					// This allows parent group selection to include all children
-					if (this.isChildOfGroup(taskGroupPath, configGroup)) {
-						filtered.push(task);
-						seenTasks.add(task.task.name);
+					if (this.isChildOfGroup(itemGroupPath, configGroup)) {
+						filtered.push(item);
+						seenItems.add(itemName);
 						break;
 					}
 				}
 
-				if (seenTasks.has(task.task.name)) {
+				if (seenItems.has(itemName)) {
 					break;
 				}
 			}
@@ -110,22 +122,23 @@ export class StatusBarManager {
 	}
 
 
-	async configureStatusBar(allTasks: TaskTreeItem[]): Promise<void> {
+	async configureStatusBar(allItems: (TaskTreeItem | LaunchConfigItem)[]): Promise<void> {
 		// Build a hierarchical structure of all groups
 		interface GroupNode {
 			path: string[];
 			children: Map<string, GroupNode>;
-			taskCount: number;
+			itemCount: number;
 		}
 
-		const rootNode: GroupNode = { path: [], children: new Map(), taskCount: 0 };
-		const tasksMap = new Map<string, TaskTreeItem>();
+		const rootNode: GroupNode = { path: [], children: new Map(), itemCount: 0 };
+		const itemsMap = new Map<string, TaskTreeItem | LaunchConfigItem>();
 
 		// Build the tree structure
-		for (const task of allTasks) {
-			tasksMap.set(task.task.name, task);
+		for (const item of allItems) {
+			const itemName = item instanceof TaskTreeItem ? item.task.name : item.launchConfig.name;
+			itemsMap.set(itemName, item);
 
-			for (const group of task.config.groups) {
+			for (const group of item.config.groups) {
 				const groupPath = Array.isArray(group) ? group : [group];
 
 				// Add this path and all parent paths
@@ -139,20 +152,20 @@ export class StatusBarManager {
 							currentNode.children.set(segment, {
 								path: partialPath.slice(0, i + 1),
 								children: new Map(),
-								taskCount: 0
+								itemCount: 0
 							});
 						}
 						currentNode = currentNode.children.get(segment)!;
 					}
-					currentNode.taskCount++;
+					currentNode.itemCount++;
 				}
 			}
 		}
 
 		// Create quick pick items with hierarchy
 		interface ConfigItem extends vscode.QuickPickItem {
-			type: 'task' | 'group';
-			taskName?: string;
+			type: 'item' | 'group';
+			itemName?: string;
 			groupPath?: string[];
 			depth?: number;
 		}
@@ -172,7 +185,7 @@ export class StatusBarManager {
 
 			// Check if this node itself is selected
 			if (node.path.length > 0 && isGroupSelected(node.path)) {
-				return node.taskCount;
+				return node.itemCount;
 			}
 
 			// Check children
@@ -195,7 +208,7 @@ export class StatusBarManager {
 
 				const indent = '  '.repeat(depth);
 				const icon = hasChildren ? (depth === 0 ? '$(folder)' : '$(folder)') : '$(symbol-namespace)';
-				const suffix = ` (${childNode.taskCount} tasks)`;
+				const suffix = ` (${childNode.itemCount} items)`;
 
 				let description = '';
 				if (isSelected) {
@@ -228,46 +241,54 @@ export class StatusBarManager {
 
 		addGroupItems(rootNode);
 
-		// Add individual task items
+		// Add individual items (tasks and launch configs)
 		items.push({
-			label: '$(symbol-event) Individual Tasks',
+			label: '$(symbol-event) Individual Items',
 			kind: vscode.QuickPickItemKind.Separator,
-			type: 'task'
+			type: 'item'
 		});
 
-		const sortedTasks = Array.from(tasksMap.values())
-			.sort((a, b) => a.task.name.localeCompare(b.task.name));
+		const sortedItems = Array.from(itemsMap.values())
+			.sort((a, b) => {
+				const nameA = a instanceof TaskTreeItem ? a.task.name : a.launchConfig.name;
+				const nameB = b instanceof TaskTreeItem ? b.task.name : b.launchConfig.name;
+				return nameA.localeCompare(nameB);
+			});
 
-		for (const task of sortedTasks) {
-			const isSelected = this.config.taskLabels.includes(task.task.name);
-			const labelText = task.config.label || task.task.name;
+		for (const item of sortedItems) {
+			const itemName = item instanceof TaskTreeItem ? item.task.name : item.launchConfig.name;
+			const isSelected = this.config.itemNames.includes(itemName);
+			const labelText = item.config.label || itemName;
 
 			// Extract icon if present
 			const iconMatch = labelText.match(/^\$\(([^)]+)\)\s*/);
 			const displayLabel = iconMatch ? labelText : labelText;
 
+			// Add type indicator
+			const typeIcon = item instanceof TaskTreeItem ? '$(play)' : '$(debug-start)';
+
 			items.push({
-				label: `  ${displayLabel}`,
+				label: `  ${typeIcon} ${displayLabel}`,
 				description: isSelected ? '$(check) Shown' : '',
-				detail: task.config.detail,
+				detail: item.config.detail,
 				picked: isSelected,
-				type: 'task',
-				taskName: task.task.name
+				type: 'item',
+				itemName: itemName
 			});
 		}
 
 		// Show quick pick
 		const selected = await vscode.window.showQuickPick(items, {
 			canPickMany: true,
-			title: 'Configure Status Bar Tasks',
-			placeHolder: 'Select tasks and groups to show in status bar (parent groups include all children)'
+			title: 'Configure Status Bar Items',
+			placeHolder: 'Select tasks/launch configs and groups to show in status bar (parent groups include all children)'
 		});
 
 		if (selected) {
 			// Update configuration
-			this.config.taskLabels = selected
-				.filter(item => item.type === 'task' && item.taskName)
-				.map(item => item.taskName!);
+			this.config.itemNames = selected
+				.filter(item => item.type === 'item' && item.itemName)
+				.map(item => item.itemName!);
 
 			this.config.groups = selected
 				.filter(item => item.type === 'group' && item.groupPath)
@@ -277,7 +298,7 @@ export class StatusBarManager {
 			await this.context.globalState.update(this.configKey, this.config);
 
 			// Refresh status bar
-			this.updateStatusBar(allTasks);
+			this.updateStatusBar(allItems);
 		}
 	}
 
