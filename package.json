@@ -62,27 +62,69 @@
         "command": "dedicatedTasks.runTask",
         "title": "Run Task",
         "icon": "$(play)"
-      },      {
+      },
+      {
         "command": "dedicatedTasks.runLaunchConfig",
         "title": "Run Launch Configuration",
         "icon": "$(debug-start)"
-      },      {
+      },
+      {
         "command": "dedicatedTasks.configureStatusBar",
         "title": "Configure Status Bar Tasks",
         "icon": "$(settings-gear)"
+      },
+      {
+        "command": "dedicatedTasks.collapseAll",
+        "title": "Collapse All",
+        "icon": "$(collapse-all)"
+      },
+      {
+        "command": "dedicatedTasks.expandAll",
+        "title": "Expand All",
+        "icon": "$(expand-all)"
+      },
+      {
+        "command": "dedicatedTasks.filter",
+        "title": "Filter Tasks",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "dedicatedTasks.clearFilter",
+        "title": "Clear Filter",
+        "icon": "$(close)"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "dedicatedTasks.refresh",
+          "command": "dedicatedTasks.filter",
+          "when": "view == dedicatedTasks.tasksView && !dedicatedTasks.filterActive",
+          "group": "navigation@1"
+        },
+        {
+          "command": "dedicatedTasks.clearFilter",
+          "when": "view == dedicatedTasks.tasksView && dedicatedTasks.filterActive",
+          "group": "navigation@1"
+        },
+        {
+          "command": "dedicatedTasks.collapseAll",
           "when": "view == dedicatedTasks.tasksView",
-          "group": "navigation"
+          "group": "navigation@2"
+        },
+        {
+          "command": "dedicatedTasks.expandAll",
+          "when": "view == dedicatedTasks.tasksView",
+          "group": "navigation@3"
         },
         {
           "command": "dedicatedTasks.configureStatusBar",
           "when": "view == dedicatedTasks.tasksView",
-          "group": "navigation"
+          "group": "navigation@4"
+        },
+        {
+          "command": "dedicatedTasks.refresh",
+          "when": "view == dedicatedTasks.tasksView",
+          "group": "navigation@5"
         }
       ]
     },

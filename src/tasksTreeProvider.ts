@@ -15,6 +15,8 @@ export interface TaskWithConfig extends vscode.Task {
 export type ActionItemType = 'task' | 'launch';
 
 export class TaskTreeItem extends vscode.TreeItem {
+	public parent?: GroupTreeItem | WorkspaceFolderItem;
+
 	constructor(
 		public readonly task: vscode.Task,
 		public readonly config: DedicatedTasksConfig,
@@ -30,6 +32,9 @@ export class TaskTreeItem extends vscode.TreeItem {
 		const displayLabel = iconMatch ? labelText.substring(iconMatch[0].length) : labelText;
 
 		super(displayLabel, vscode.TreeItemCollapsibleState.None);
+
+		// Unique ID for this task item
+		this.id = `task:${workspaceFolder.uri.toString()}:${task.name}`;
 
 		this.description = config.detail || '';
 		this.tooltip = `${displayLabel}${config.detail ? '\n' + config.detail : ''}`;
@@ -47,6 +52,8 @@ export class TaskTreeItem extends vscode.TreeItem {
 }
 
 export class LaunchConfigItem extends vscode.TreeItem {
+	public parent?: GroupTreeItem | WorkspaceFolderItem;
+
 	constructor(
 		public readonly launchConfig: { name: string; folder: vscode.WorkspaceFolder },
 		public readonly config: DedicatedTasksConfig,
@@ -62,6 +69,9 @@ export class LaunchConfigItem extends vscode.TreeItem {
 		const displayLabel = iconMatch ? labelText.substring(iconMatch[0].length) : labelText;
 
 		super(displayLabel, vscode.TreeItemCollapsibleState.None);
+
+		// Unique ID for this launch config item
+		this.id = `launch:${workspaceFolder.uri.toString()}:${launchConfig.name}`;
 
 		this.description = config.detail || '';
 		this.tooltip = `${displayLabel}${config.detail ? '\n' + config.detail : ''}`;
@@ -82,9 +92,13 @@ export class WorkspaceFolderItem extends vscode.TreeItem {
 	constructor(
 		public readonly folder: vscode.WorkspaceFolder,
 		public readonly abbreviation: string,
-		public readonly children: (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[]
+		public readonly children: (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[],
+		isExpanded: boolean = false
 	) {
-		super(folder.name, vscode.TreeItemCollapsibleState.Expanded);
+		super(folder.name, isExpanded ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed);
+
+		// Unique ID for this workspace folder item
+		this.id = `folder:${folder.uri.toString()}`;
 
 		this.description = `[${abbreviation}]`;
 		this.tooltip = `${folder.name} (${abbreviation})\n${folder.uri.fsPath}`;
@@ -93,15 +107,32 @@ export class WorkspaceFolderItem extends vscode.TreeItem {
 	}
 }
 
+export class MessageItem extends vscode.TreeItem {
+	constructor(message: string, icon?: string) {
+		super(message, vscode.TreeItemCollapsibleState.None);
+		this.contextValue = 'message';
+		this.iconPath = new vscode.ThemeIcon(icon || 'info');
+	}
+}
+
 export class GroupTreeItem extends vscode.TreeItem {
+	public parent?: GroupTreeItem | WorkspaceFolderItem;
+	private _children: (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[];
+
 	constructor(
 		public readonly label: string,
-		public readonly children: (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[],
+		children: (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[],
 		public readonly path: string[],
 		public readonly workspaceFolder?: vscode.WorkspaceFolder,
-		public readonly folderAbbreviation?: string
+		public readonly folderAbbreviation?: string,
+		isExpanded: boolean = false
 	) {
-		super(label, vscode.TreeItemCollapsibleState.Expanded);
+		super(label, isExpanded ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed);
+		this._children = children;
+
+		// Unique ID based on path and folder
+		const folderUri = workspaceFolder?.uri.toString() || 'global';
+		this.id = `group:${folderUri}:${path.join('/')}`;
 
 		this.contextValue = 'group';
 
@@ -112,6 +143,14 @@ export class GroupTreeItem extends vscode.TreeItem {
 		}
 
 		this.iconPath = new vscode.ThemeIcon('folder');
+	}
+
+	get children(): (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[] {
+		return this._children;
+	}
+
+	set children(value: (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[]) {
+		this._children = value;
 	}
 
 	private countItems(items: (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[]): number {
@@ -190,13 +229,14 @@ export function generateFolderAbbreviations(folders: readonly vscode.WorkspaceFo
 	return abbreviations;
 }
 
-export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem> {
-	private _onDidChangeTreeData: vscode.EventEmitter<TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | undefined | null | void> =
-		new vscode.EventEmitter<TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | undefined | null | void>();
-	readonly onDidChangeTreeData: vscode.Event<TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | undefined | null | void> =
+export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | MessageItem> {
+	private _onDidChangeTreeData: vscode.EventEmitter<TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | MessageItem | undefined | null | void> =
+		new vscode.EventEmitter<TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | MessageItem | undefined | null | void>();
+	readonly onDidChangeTreeData: vscode.Event<TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | MessageItem | undefined | null | void> =
 		this._onDidChangeTreeData.event;
 
 	private folderAbbreviations: Map<string, string> = new Map();
+	private filterText: string = '';
 
 	refresh(): void {
 		// Regenerate abbreviations on refresh
@@ -204,6 +244,15 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 			this.folderAbbreviations = generateFolderAbbreviations(vscode.workspace.workspaceFolders);
 		}
 		this._onDidChangeTreeData.fire();
+	}
+
+	setFilter(text: string): void {
+		this.filterText = text.toLowerCase();
+		this._onDidChangeTreeData.fire();
+	}
+
+	getFilterText(): string {
+		return this.filterText;
 	}
 
 	getFolderAbbreviation(folder: vscode.WorkspaceFolder): string {
@@ -225,11 +274,19 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 		return [...tasks, ...launchConfigs];
 	}
 
-	getTreeItem(element: TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem): vscode.TreeItem {
+	getTreeItem(element: TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | MessageItem): vscode.TreeItem {
 		return element;
 	}
 
-	async getChildren(element?: TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem): Promise<(TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem)[]> {
+	getParent(element: TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | MessageItem): vscode.ProviderResult<TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | MessageItem> {
+		if (element instanceof TaskTreeItem || element instanceof LaunchConfigItem || element instanceof GroupTreeItem) {
+			return element.parent;
+		}
+		// WorkspaceFolderItem and MessageItem have no parent (they are root level)
+		return undefined;
+	}
+
+	async getChildren(element?: TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | MessageItem): Promise<(TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | MessageItem)[]> {
 		if (!vscode.workspace.workspaceFolders) {
 			return [];
 		}
@@ -245,14 +302,34 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 
 			if (folders.length === 1) {
 				// Single folder: show hierarchy directly (no folder wrapper)
-				return this.buildHierarchyForFolder(folders[0]);
+				const hierarchy = await this.buildHierarchyForFolder(folders[0]);
+				if (hierarchy.length === 0 && this.filterText) {
+					return [new MessageItem(`No tasks matching "${this.filterText}"`, 'search')];
+				}
+				return hierarchy;
 			} else {
 				// Multiple folders: show workspace folders at top level
 				const folderItems: WorkspaceFolderItem[] = [];
+				let totalItems = 0;
 				for (const folder of folders) {
 					const abbreviation = this.getFolderAbbreviation(folder);
 					const children = await this.buildHierarchyForFolder(folder);
-					folderItems.push(new WorkspaceFolderItem(folder, abbreviation, children));
+					totalItems += children.length;
+					// Only add folder if it has children (when filtering)
+					if (children.length > 0 || !this.filterText) {
+						// Expand when filter is active, collapse by default
+						const folderItem = new WorkspaceFolderItem(folder, abbreviation, children, !!this.filterText);
+						// Set parent reference for all children
+						for (const child of children) {
+							if (child instanceof GroupTreeItem || child instanceof TaskTreeItem || child instanceof LaunchConfigItem) {
+								child.parent = folderItem;
+							}
+						}
+						folderItems.push(folderItem);
+					}
+				}
+				if (folderItems.length === 0 && this.filterText) {
+					return [new MessageItem(`No tasks matching "${this.filterText}"`, 'search')];
 				}
 				return folderItems;
 			}
@@ -268,9 +345,48 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 	private async buildHierarchyForFolder(folder: vscode.WorkspaceFolder): Promise<(TaskTreeItem | LaunchConfigItem | GroupTreeItem)[]> {
 		const tasks = await this.getDedicatedTasksForFolder(folder);
 		const launchConfigs = await this.getDedicatedLaunchConfigsForFolder(folder);
-		const allItems = [...tasks, ...launchConfigs];
+		let allItems = [...tasks, ...launchConfigs];
+
+		// Apply filter if set
+		if (this.filterText) {
+			allItems = allItems.filter(item => this.matchesFilter(item));
+		}
 
 		return this.buildHierarchyFromItems(allItems, folder);
+	}
+
+	private matchesFilter(item: TaskTreeItem | LaunchConfigItem): boolean {
+		if (!this.filterText) {
+			return true;
+		}
+
+		// Check task/launch config name
+		const itemName = item instanceof TaskTreeItem ? item.task.name : item.launchConfig.name;
+		if (itemName.toLowerCase().includes(this.filterText)) {
+			return true;
+		}
+
+		// Check label
+		const labelText = item.config.label || '';
+		if (labelText.toLowerCase().includes(this.filterText)) {
+			return true;
+		}
+
+		// Check detail
+		const detailText = item.config.detail || '';
+		if (detailText.toLowerCase().includes(this.filterText)) {
+			return true;
+		}
+
+		// Check groups
+		for (const group of item.config.groups) {
+			const groupPath = Array.isArray(group) ? group : [group];
+			if (groupPath.some(g => g.toLowerCase().includes(this.filterText))) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private buildHierarchyFromItems(
@@ -319,7 +435,7 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 		}
 
 		// Convert hierarchy tree to TreeItems
-		const convertNode = (node: HierarchyNode): (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[] => {
+		const convertNode = (node: HierarchyNode, parentItem?: GroupTreeItem): (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[] => {
 			const items: (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[] = [];
 
 			// Add subgroups first (sorted alphabetically)
@@ -327,9 +443,17 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 				.sort((a, b) => a[0].localeCompare(b[0]));
 
 			for (const [name, childNode] of sortedGroups) {
-				const childItems = convertNode(childNode);
 				const abbreviation = folder ? this.getFolderAbbreviation(folder) : undefined;
-				items.push(new GroupTreeItem(name, childItems, childNode.path, folder, abbreviation));
+				// Create group first, then get children with parent reference
+				const groupItem = new GroupTreeItem(name, [], childNode.path, folder, abbreviation, !!this.filterText);
+				groupItem.parent = parentItem;
+				
+				// Now get children with this group as parent
+				const childItems = convertNode(childNode, groupItem);
+				// Update children array (we had to create empty first to have the reference)
+				groupItem.children = childItems;
+				
+				items.push(groupItem);
 			}
 
 			// Then add items (tasks and launch configs sorted by order)
@@ -338,6 +462,11 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 				const orderB = b.config.order ?? 0;
 				return orderA - orderB;
 			});
+
+			// Set parent for leaf items
+			for (const item of sortedItems) {
+				item.parent = parentItem;
+			}
 
 			items.push(...sortedItems);
 

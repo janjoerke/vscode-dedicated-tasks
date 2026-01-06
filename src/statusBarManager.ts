@@ -343,7 +343,7 @@ export class StatusBarManager {
 				const indent = '  '.repeat(depth + (isMultiFolder ? 1 : 0));
 				const icon = hasChildren ? '$(folder)' : '$(symbol-namespace)';
 				// Add abbreviation to suffix in multi-folder mode for filtering
-				const suffix = isMultiFolder 
+				const suffix = isMultiFolder
 					? ` (${childNode.itemCount} items, ${abbreviation})`
 					: ` (${childNode.itemCount} items)`;
 

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { TasksTreeDataProvider } from './tasksTreeProvider';
+import { TasksTreeDataProvider, GroupTreeItem, WorkspaceFolderItem, TaskTreeItem, LaunchConfigItem } from './tasksTreeProvider';
 import { StatusBarManager } from './statusBarManager';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -11,10 +11,11 @@ export function activate(context: vscode.ExtensionContext) {
 	// Create status bar manager
 	const statusBarManager = new StatusBarManager();
 
-	vscode.window.registerTreeDataProvider(
-		'dedicatedTasks.tasksView',
-		tasksProvider
-	);
+	// Create tree view with TreeView API for collapse/expand control
+	const treeView = vscode.window.createTreeView('dedicatedTasks.tasksView', {
+		treeDataProvider: tasksProvider,
+		showCollapseAll: false // We'll use our own button
+	});
 
 	// Update status bar when tasks change
 	const updateStatusBar = async () => {
@@ -49,6 +50,84 @@ export function activate(context: vscode.ExtensionContext) {
 			await statusBarManager.configureStatusBar(tasks);
 		})
 	);
+
+	// Collapse all command
+	context.subscriptions.push(
+		vscode.commands.registerCommand('dedicatedTasks.collapseAll', async () => {
+			// Use the built-in collapse all for the view
+			await vscode.commands.executeCommand('workbench.actions.treeView.dedicatedTasks.tasksView.collapseAll');
+		})
+	);
+
+	// Helper function to collect all leaf items (tasks and launch configs)
+	const collectLeafItems = async (elements: any[]): Promise<any[]> => {
+		const leaves: any[] = [];
+		for (const element of elements) {
+			if (element instanceof GroupTreeItem || element instanceof WorkspaceFolderItem) {
+				const children = await tasksProvider.getChildren(element);
+				leaves.push(...await collectLeafItems(children));
+			} else if (element instanceof TaskTreeItem || element instanceof LaunchConfigItem) {
+				leaves.push(element);
+			}
+		}
+		return leaves;
+	};
+
+	// Helper function to expand all items by revealing leaves
+	const expandAllItems = async () => {
+		const rootElements = await tasksProvider.getChildren();
+		const leaves = await collectLeafItems(rootElements);
+		// Reveal each leaf item - this will expand all ancestors
+		for (const leaf of leaves) {
+			try {
+				await treeView.reveal(leaf, { expand: true, select: false });
+			} catch {
+				// Ignore errors
+			}
+		}
+	};
+
+	// Expand all command
+	context.subscriptions.push(
+		vscode.commands.registerCommand('dedicatedTasks.expandAll', async () => {
+			await expandAllItems();
+		})
+	);
+
+	// Filter command
+	context.subscriptions.push(
+		vscode.commands.registerCommand('dedicatedTasks.filter', async () => {
+			const filterText = await vscode.window.showInputBox({
+				prompt: 'Filter tasks by name',
+				placeHolder: 'Enter filter text...',
+				value: tasksProvider.getFilterText()
+			});
+
+			if (filterText !== undefined) {
+				tasksProvider.setFilter(filterText);
+				vscode.commands.executeCommand('setContext', 'dedicatedTasks.filterActive', filterText.length > 0);
+				
+				// If filter is active, expand all items to show results
+				if (filterText.length > 0) {
+					// Small delay to let the tree refresh first
+					setTimeout(async () => {
+						await expandAllItems();
+					}, 100);
+				}
+			}
+		})
+	);
+
+	// Clear filter command
+	context.subscriptions.push(
+		vscode.commands.registerCommand('dedicatedTasks.clearFilter', async () => {
+			tasksProvider.setFilter('');
+			vscode.commands.executeCommand('setContext', 'dedicatedTasks.filterActive', false);
+		})
+	);
+
+	// Register tree view
+	context.subscriptions.push(treeView);
 
 	// Watch for tasks.json changes
 	const tasksJsonWatcher = vscode.workspace.createFileSystemWatcher('**/.vscode/tasks.json');
