@@ -331,7 +331,7 @@ export class StatusBarManager {
 		};
 
 		// Build hierarchical group items for a folder
-		const addGroupItems = (folderUri: string, node: GroupNode, depth: number = 0) => {
+		const addGroupItems = (folderUri: string, abbreviation: string, node: GroupNode, depth: number = 0) => {
 			const sortedChildren = Array.from(node.children.entries())
 				.sort((a, b) => a[0].localeCompare(b[0]));
 
@@ -342,7 +342,10 @@ export class StatusBarManager {
 
 				const indent = '  '.repeat(depth + (isMultiFolder ? 1 : 0));
 				const icon = hasChildren ? '$(folder)' : '$(symbol-namespace)';
-				const suffix = ` (${childNode.itemCount} items)`;
+				// Add abbreviation to suffix in multi-folder mode for filtering
+				const suffix = isMultiFolder 
+					? ` (${childNode.itemCount} items, ${abbreviation})`
+					: ` (${childNode.itemCount} items)`;
 
 				let description = '';
 				if (isSelected) {
@@ -363,7 +366,7 @@ export class StatusBarManager {
 				});
 
 				// Recursively add children
-				addGroupItems(folderUri, childNode, depth + 1);
+				addGroupItems(folderUri, abbreviation, childNode, depth + 1);
 			}
 		};
 
@@ -377,7 +380,7 @@ export class StatusBarManager {
 			// Add folder header in multi-folder workspace
 			if (isMultiFolder) {
 				items.push({
-					label: `$(root-folder) ${folderData.folder.name} [${folderData.abbreviation}]`,
+					label: `${folderData.folder.name} [${folderData.abbreviation}]`,
 					kind: vscode.QuickPickItemKind.Separator,
 					type: 'folder-header',
 					folderUri
@@ -388,19 +391,19 @@ export class StatusBarManager {
 			if (folderData.rootNode.children.size > 0) {
 				if (!isMultiFolder) {
 					items.push({
-						label: '$(folder-opened) Groups & Hierarchies',
+						label: 'Groups & Hierarchies',
 						kind: vscode.QuickPickItemKind.Separator,
 						type: 'group'
 					});
 				}
-				addGroupItems(folderUri, folderData.rootNode);
+				addGroupItems(folderUri, folderData.abbreviation, folderData.rootNode);
 			}
 
 			// Add individual items
 			const indentPrefix = isMultiFolder ? '  ' : '';
 
 			items.push({
-				label: `${indentPrefix}$(symbol-event) Individual Items`,
+				label: `${indentPrefix}Individual Items`,
 				kind: vscode.QuickPickItemKind.Separator,
 				type: 'item',
 				folderUri
@@ -424,9 +427,11 @@ export class StatusBarManager {
 				// Add type indicator
 				const typeIcon = item instanceof TaskTreeItem ? '$(play)' : '$(debug-start)';
 				const indent = isMultiFolder ? '    ' : '  ';
+				// Add abbreviation suffix in multi-folder mode for filtering
+				const abbrevSuffix = isMultiFolder ? ` (${folderData.abbreviation})` : '';
 
 				items.push({
-					label: `${indent}${typeIcon} ${displayLabel}`,
+					label: `${indent}${typeIcon} ${displayLabel}${abbrevSuffix}`,
 					description: isSelected ? '$(check) Shown' : '',
 					detail: item.config.detail,
 					picked: isSelected,
