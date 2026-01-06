@@ -447,12 +447,12 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TaskTreeIt
 				// Create group first, then get children with parent reference
 				const groupItem = new GroupTreeItem(name, [], childNode.path, folder, abbreviation, !!this.filterText);
 				groupItem.parent = parentItem;
-				
+
 				// Now get children with this group as parent
 				const childItems = convertNode(childNode, groupItem);
 				// Update children array (we had to create empty first to have the reference)
 				groupItem.children = childItems;
-				
+
 				items.push(groupItem);
 			}
 

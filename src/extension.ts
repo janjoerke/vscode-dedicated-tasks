@@ -106,7 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
 			if (filterText !== undefined) {
 				tasksProvider.setFilter(filterText);
 				vscode.commands.executeCommand('setContext', 'dedicatedTasks.filterActive', filterText.length > 0);
-				
+
 				// If filter is active, expand all items to show results
 				if (filterText.length > 0) {
 					// Small delay to let the tree refresh first
