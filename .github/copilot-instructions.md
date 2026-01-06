@@ -84,7 +84,33 @@ The tree provider handles both `TaskTreeItem` and `LaunchConfigItem` instances:
 - **TaskTreeItem**: Wraps `vscode.Task`, stores `workspaceFolder` and `folderAbbreviation`, executes via `vscode.tasks.executeTask()`
 - **LaunchConfigItem**: Stores config name + workspace folder + abbreviation, executes via `vscode.debug.startDebugging()`
 - **WorkspaceFolderItem**: Container for a workspace folder's items (multi-folder only)
+- **GroupTreeItem**: Container for grouped items, supports nesting
+- **MessageItem**: Displays informational messages (e.g., "No tasks matching filter")
 - All items share the same `DedicatedTasksConfig` interface and sorting/grouping logic
+
+**Tree Item Requirements**:
+- Each tree item must have a unique `id` property for `TreeView.reveal()` to work
+- Items with children must track `parent` references for `getParent()` implementation
+- ID format: `task:${folderUri}:${name}`, `launch:${folderUri}:${name}`, `group:${folderUri}:${path}`, `folder:${folderUri}`
+
+### Tree View Controls
+
+The tree view includes toolbar buttons for navigation:
+- **Collapse All**: Uses built-in VS Code command `workbench.actions.treeView.dedicatedTasks.tasksView.collapseAll`
+- **Expand All**: Reveals all leaf items via `treeView.reveal()` which expands ancestors
+- **Filter**: Shows input box, filters items by name/label/detail, auto-expands to show results
+- **Clear Filter**: Clears filter text, preserves current expand/collapse state
+
+**Filter Implementation**:
+- `matchesFilter()` checks task name, label, detail, groups, and folder abbreviation
+- When filter is active, `GroupTreeItem` and `WorkspaceFolderItem` are created with `isExpanded=true`
+- Context key `dedicatedTasks.filterActive` controls clear button visibility
+
+**getParent() Implementation**:
+- Required for `TreeView.reveal()` to expand ancestor nodes
+- `TaskTreeItem`, `LaunchConfigItem`, `GroupTreeItem` store `parent` property
+- `convertNode()` in `buildHierarchyFromItems()` sets parent during hierarchy construction
+- `getChildren()` sets parent for `WorkspaceFolderItem` children
 
 ### Parsing JSON Files with Comments
 
@@ -118,9 +144,16 @@ Both item types extract icons using regex `/^\$\(([^)]+)\)\s*/`:
 
 ## VS Code API Integration
 
-- **TreeDataProvider**: Implements `getTreeItem()` and `getChildren()`, fires `onDidChangeTreeData` for refresh
+- **TreeDataProvider**: Implements `getTreeItem()`, `getChildren()`, and `getParent()`, fires `onDidChangeTreeData` for refresh
+- **TreeView**: Created via `vscode.window.createTreeView()` for access to `reveal()` method
 - **FileSystemWatcher**: Watches both `**/.vscode/tasks.json` and `**/.vscode/launch.json` - onChange/onCreate/onDelete all trigger refresh
-- **Commands**: All use `dedicatedTasks.*` namespace (e.g., `dedicatedTasks.runTask`, `dedicatedTasks.runLaunchConfig`)
+- **Commands**: All use `dedicatedTasks.*` namespace:
+  - `dedicatedTasks.runTask` - Execute a task
+  - `dedicatedTasks.runLaunchConfig` - Start a debug configuration
+  - `dedicatedTasks.collapseAll` - Collapse all tree nodes (uses built-in)
+  - `dedicatedTasks.expandAll` - Expand all tree nodes (reveals leaf items)
+  - `dedicatedTasks.filter` - Show filter input box
+  - `dedicatedTasks.clearFilter` - Clear active filter
 - **Task Execution**: `vscode.tasks.executeTask(task)` for tasks
 - **Debug Execution**: `vscode.debug.startDebugging(folder, configName)` for launch configs
 - **Per-folder Config**: Status bar config persisted in each folder's `.vscode/dedicated-tasks.json`
