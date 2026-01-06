@@ -142,7 +142,7 @@ export class GroupTreeItem extends vscode.TreeItem {
 			this.description = `${itemCount} item${itemCount !== 1 ? 's' : ''}`;
 		}
 
-		this.iconPath = new vscode.ThemeIcon('folder');
+		this.iconPath = new vscode.ThemeIcon('symbol-folder');
 	}
 
 	get children(): (TaskTreeItem | LaunchConfigItem | GroupTreeItem)[] {
