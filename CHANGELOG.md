@@ -2,6 +2,27 @@
 
 All notable changes to the "Dedicated tasks" extension will be documented in this file.
 
+## [0.1.0] - 2026-01-06
+
+### Added
+- **Multi-folder workspace support**: Workspace folders now appear as top-level items in the tree view
+- **Folder abbreviations**: Unique 3-character abbreviations (e.g., `[VSC]`, `[API]`) differentiate tasks across workspace folders
+- **Per-folder configuration**: Status bar config stored in each folder's `.vscode/dedicated-tasks.json`
+- **Tree view controls**: New toolbar buttons for collapse all, expand all, and filter
+- **Filter functionality**: Search tasks by name, label, detail, groups, or folder abbreviation
+- **Expand all button**: Expands all groups and workspace folders in one click
+- **Collapse all button**: Collapses all groups and workspace folders
+- **Filter preservation**: Clearing filter preserves current expand/collapse state
+
+### Changed
+- Tree view now uses `symbol-folder` icon for groups to fix indentation issues
+- Improved parent tracking for tree items to support reveal/expand functionality
+
+### Technical
+- Added unique `id` properties to all tree items for `TreeView.reveal()` support
+- Implemented `getParent()` method in TreeDataProvider
+- Tree items now track parent references for proper hierarchy navigation
+
 ## [0.0.1] - 2025-12-12
 
 ### Added

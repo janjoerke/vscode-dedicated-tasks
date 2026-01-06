@@ -15,6 +15,8 @@ If you have many tasks and debug configurations in your workspace, the default V
 
 ## Features
 
+- **Multi-folder Workspace Support**: Full support for multi-folder workspaces with folder abbreviations and per-folder configuration
+- **Tree View Controls**: Filter, expand all, and collapse all buttons for easy navigation
 - **Dedicated Activity Bar View**: Access your tasks and launch configs from a dedicated icon in the VS Code activity bar
 - **Status Bar Integration**: Pin frequently used tasks and launch configs to the status bar for quick access with hierarchical group selection
 - **Icon Support**: Use any VS Code icon (e.g., `$(gear)`, `$(rocket)`, `$(debug)`) in labels
@@ -394,6 +396,18 @@ VS Code's built-in schema for `launch.json` doesn't recognize the `dedicatedTask
 This limitation exists because VS Code doesn't allow extensions to extend the built-in launch.json schema, only replace it entirely (which would break all standard IntelliSense). The `tasks.json` schema works fine because VS Code allows custom properties in the `options` object.
 
 ## Release Notes
+
+### 0.1.0
+
+**Multi-folder Workspace Support:**
+- Workspace folders appear as top-level items in the tree view
+- Unique 3-character abbreviations differentiate tasks across folders (e.g., `[VSC]`, `[API]`)
+- Per-folder status bar configuration stored in each folder's `.vscode/dedicated-tasks.json`
+
+**Tree View Controls:**
+- Filter button to search tasks by name, label, detail, groups, or folder abbreviation
+- Expand all / Collapse all buttons for quick navigation
+- Filter auto-expands matching items; clearing filter preserves state
 
 ### 0.0.1
 
