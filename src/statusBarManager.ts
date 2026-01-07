@@ -1,9 +1,12 @@
 import * as vscode from 'vscode';
 import { TaskTreeItem, LaunchConfigItem, generateFolderAbbreviations } from './tasksTreeProvider';
 
+const CONFIG_FILE_NAME = 'dedicated-tasks.json';
+
 interface FolderStatusBarConfig {
 	itemNames: string[];  // Item names (task or launch config) to show
 	groups: string[][];   // Group paths to show (all items in these groups)
+	abbreviation?: string; // Custom abbreviation for this folder
 }
 
 interface MergedStatusBarConfig {
@@ -11,11 +14,39 @@ interface MergedStatusBarConfig {
 	folders: Map<string, FolderStatusBarConfig>;
 }
 
+/**
+ * Load custom abbreviations from dedicated-tasks.json files in all workspace folders.
+ * Returns a Map of folder URI to custom abbreviation string.
+ */
+export async function loadCustomAbbreviations(): Promise<Map<string, string>> {
+	const customAbbreviations = new Map<string, string>();
+
+	if (!vscode.workspace.workspaceFolders) {
+		return customAbbreviations;
+	}
+
+	for (const folder of vscode.workspace.workspaceFolders) {
+		const configUri = vscode.Uri.joinPath(folder.uri, '.vscode', CONFIG_FILE_NAME);
+
+		try {
+			const content = await vscode.workspace.fs.readFile(configUri);
+			const text = new TextDecoder().decode(content);
+			const parsed = JSON.parse(text);
+			if (parsed.abbreviation) {
+				customAbbreviations.set(folder.uri.toString(), parsed.abbreviation);
+			}
+		} catch {
+			// Config doesn't exist or is invalid, skip
+		}
+	}
+
+	return customAbbreviations;
+}
+
 export class StatusBarManager {
 	private readonly statusBarItems: Map<string, vscode.StatusBarItem> = new Map();
 	private config: MergedStatusBarConfig;
 	private folderAbbreviations: Map<string, string> = new Map();
-	private readonly configFileName = 'dedicated-tasks.json';
 	private configLoaded: boolean = false;
 
 	constructor() {
@@ -36,19 +67,22 @@ export class StatusBarManager {
 			return result;
 		}
 
-		// Generate abbreviations
-		this.folderAbbreviations = generateFolderAbbreviations(vscode.workspace.workspaceFolders);
-
+		// First pass: collect custom abbreviations from all folders
+		const customAbbreviations = new Map<string, string>();
 		for (const folder of vscode.workspace.workspaceFolders) {
-			const configUri = vscode.Uri.joinPath(folder.uri, '.vscode', this.configFileName);
+			const configUri = vscode.Uri.joinPath(folder.uri, '.vscode', CONFIG_FILE_NAME);
 
 			try {
 				const content = await vscode.workspace.fs.readFile(configUri);
 				const text = new TextDecoder().decode(content);
 				const parsed = JSON.parse(text);
+				if (parsed.abbreviation) {
+					customAbbreviations.set(folder.uri.toString(), parsed.abbreviation);
+				}
 				result.folders.set(folder.uri.toString(), {
 					itemNames: parsed.statusBar?.itemNames || [],
-					groups: parsed.statusBar?.groups || []
+					groups: parsed.statusBar?.groups || [],
+					abbreviation: parsed.abbreviation
 				});
 			} catch {
 				// Config doesn't exist for this folder, use empty config
@@ -59,16 +93,40 @@ export class StatusBarManager {
 			}
 		}
 
+		// Generate abbreviations with custom ones taking precedence
+		this.folderAbbreviations = generateFolderAbbreviations(vscode.workspace.workspaceFolders, customAbbreviations);
+
 		return result;
 	}
 
 	private async saveConfigForFolder(folder: vscode.WorkspaceFolder): Promise<void> {
-		const configUri = vscode.Uri.joinPath(folder.uri, '.vscode', this.configFileName);
+		const configUri = vscode.Uri.joinPath(folder.uri, '.vscode', CONFIG_FILE_NAME);
 		const folderConfig = this.config.folders.get(folder.uri.toString()) || { itemNames: [], groups: [] };
 
-		const configData = {
-			statusBar: folderConfig
+		// Read existing config to preserve abbreviation and any other root-level fields
+		let existingAbbreviation: string | undefined;
+		try {
+			const existingContent = await vscode.workspace.fs.readFile(configUri);
+			const existingText = new TextDecoder().decode(existingContent);
+			const existingParsed = JSON.parse(existingText);
+			existingAbbreviation = existingParsed.abbreviation;
+		} catch {
+			// File doesn't exist or is invalid, no abbreviation to preserve
+		}
+
+		// Build config data, preserving abbreviation at root level
+		const configData: Record<string, unknown> = {
+			statusBar: {
+				itemNames: folderConfig.itemNames,
+				groups: folderConfig.groups
+			}
 		};
+
+		// Preserve abbreviation: use in-memory value if set, otherwise use existing file value
+		const abbreviation = folderConfig.abbreviation || existingAbbreviation;
+		if (abbreviation) {
+			configData.abbreviation = abbreviation;
+		}
 
 		const content = new TextEncoder().encode(JSON.stringify(configData, null, 2));
 		await vscode.workspace.fs.writeFile(configUri, content);
@@ -94,9 +152,15 @@ export class StatusBarManager {
 		// Clear existing status bar items
 		this.clearStatusBar();
 
-		// Regenerate abbreviations if needed
+		// Regenerate abbreviations if needed (include custom abbreviations from config)
 		if (vscode.workspace.workspaceFolders) {
-			this.folderAbbreviations = generateFolderAbbreviations(vscode.workspace.workspaceFolders);
+			const customAbbreviations = new Map<string, string>();
+			for (const [folderUri, folderConfig] of this.config.folders) {
+				if (folderConfig.abbreviation) {
+					customAbbreviations.set(folderUri, folderConfig.abbreviation);
+				}
+			}
+			this.folderAbbreviations = generateFolderAbbreviations(vscode.workspace.workspaceFolders, customAbbreviations);
 		}
 
 		// Filter items based on configuration
@@ -114,11 +178,17 @@ export class StatusBarManager {
 
 			// Get name and label depending on item type
 			const itemName = item instanceof TaskTreeItem ? item.task.name : item.launchConfig.name;
-			const labelText = item.config.label || itemName;
+			// Use statusbarLabel if set, otherwise fall back to label, then item name
+			const statusbarLabelText = item.config.statusbarLabel || item.config.label || itemName;
+			const fullLabelText = item.config.label || itemName;
 			const iconRegex = /^\$\(([^)]+)\)\s*/;
-			const iconMatch = iconRegex.exec(labelText);
+			const iconMatch = iconRegex.exec(statusbarLabelText);
 			const icon = iconMatch ? iconMatch[1] : '';
-			const displayLabel = iconMatch ? labelText.substring(iconMatch[0].length) : labelText;
+			const displayLabel = iconMatch ? statusbarLabelText.substring(iconMatch[0].length) : statusbarLabelText;
+			// For tooltip, use the full label
+			const tooltipLabel = iconRegex.exec(fullLabelText)
+				? fullLabelText.substring(iconRegex.exec(fullLabelText)![0].length)
+				: fullLabelText;
 
 			// Add folder abbreviation prefix in multi-folder workspaces
 			const folderPrefix = isMultiFolder ? `[${item.folderAbbreviation}] ` : '';
@@ -126,7 +196,7 @@ export class StatusBarManager {
 			// Set status bar item properties
 			statusBarItem.text = icon ? `$(${icon}) ${folderPrefix}${displayLabel}` : `${folderPrefix}${displayLabel}`;
 			statusBarItem.tooltip = new vscode.MarkdownString(
-				`**${displayLabel}**\n\n` +
+				`**${tooltipLabel}**\n\n` +
 				(isMultiFolder ? `*Folder: ${item.workspaceFolder.name} (${item.folderAbbreviation})*\n\n` : '') +
 				`${item.config.detail || ''}\n\n---\n\n` +
 				`• Click to run\n` +

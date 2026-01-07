@@ -30,6 +30,10 @@
                     "type": "string",
                     "description": "Display label for the task in Dedicated tasks"
                   },
+                  "statusbarLabel": {
+                    "type": "string",
+                    "description": "Shorthand label for display in status bar. Defaults to label if not set."
+                  },
                   "detail": {
                     "type": "string",
                     "description": "Additional detail text shown below the task label"

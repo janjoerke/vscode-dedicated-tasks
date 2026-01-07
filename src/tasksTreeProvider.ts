@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 export interface DedicatedTasksConfig {
 	label?: string;
+	statusbarLabel?: string;
 	detail?: string;
 	hide?: boolean;
 	groups: (string | string[])[];
@@ -179,10 +180,27 @@ export class GroupTreeItem extends vscode.TreeItem {
  * 2. If conflict, try first letter + next 2 consonants
  * 3. If conflict, try first letter + first + last letter
  * 4. If still conflict, append numbers (AB1, AB2, etc.)
+ * 
+ * @param folders - The workspace folders to generate abbreviations for
+ * @param customAbbreviations - Optional map of folder URI to custom abbreviation from dedicated-tasks.json
  */
-export function generateFolderAbbreviations(folders: readonly vscode.WorkspaceFolder[]): Map<string, string> {
+export function generateFolderAbbreviations(
+	folders: readonly vscode.WorkspaceFolder[],
+	customAbbreviations?: Map<string, string>
+): Map<string, string> {
 	const abbreviations = new Map<string, string>();
 	const usedAbbreviations = new Set<string>();
+
+	// First pass: add all custom abbreviations
+	if (customAbbreviations) {
+		for (const folder of folders) {
+			const customAbbrev = customAbbreviations.get(folder.uri.toString());
+			if (customAbbrev) {
+				abbreviations.set(folder.uri.toString(), customAbbrev.toUpperCase());
+				usedAbbreviations.add(customAbbrev.toUpperCase());
+			}
+		}
+	}
 
 	const getConsonants = (str: string): string => {
 		return str.replaceAll(/[aeiouAEIOU\s\-_.]/g, '');
@@ -227,6 +245,10 @@ export function generateFolderAbbreviations(folders: readonly vscode.WorkspaceFo
 	};
 
 	for (const folder of folders) {
+		// Skip folders with custom abbreviations (already processed)
+		if (abbreviations.has(folder.uri.toString())) {
+			continue;
+		}
 		const abbrev = generateAbbreviation(folder.name);
 		abbreviations.set(folder.uri.toString(), abbrev);
 		usedAbbreviations.add(abbrev);
@@ -242,14 +264,54 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 		this._onDidChangeTreeData.event;
 
 	private folderAbbreviations: Map<string, string> = new Map();
+	private customAbbreviations: Map<string, string> = new Map();
 	private filterText: string = '';
+	private abbreviationsLoaded: boolean = false;
 
 	refresh(): void {
-		// Regenerate abbreviations on refresh
-		if (vscode.workspace.workspaceFolders) {
-			this.folderAbbreviations = generateFolderAbbreviations(vscode.workspace.workspaceFolders);
-		}
+		// Mark abbreviations as needing reload
+		this.abbreviationsLoaded = false;
 		this._onDidChangeTreeData.fire();
+	}
+
+	/**
+	 * Load custom abbreviations from dedicated-tasks.json files
+	 */
+	private async loadCustomAbbreviations(): Promise<void> {
+		this.customAbbreviations = new Map();
+
+		if (!vscode.workspace.workspaceFolders) {
+			return;
+		}
+
+		for (const folder of vscode.workspace.workspaceFolders) {
+			const configUri = vscode.Uri.joinPath(folder.uri, '.vscode', 'dedicated-tasks.json');
+
+			try {
+				const content = await vscode.workspace.fs.readFile(configUri);
+				const text = new TextDecoder().decode(content);
+				const parsed = JSON.parse(text);
+				if (parsed.abbreviation) {
+					this.customAbbreviations.set(folder.uri.toString(), parsed.abbreviation);
+				}
+			} catch {
+				// Config doesn't exist or is invalid, skip
+			}
+		}
+	}
+
+	/**
+	 * Ensure abbreviations are loaded (loads custom abbreviations if needed)
+	 */
+	private async ensureAbbreviationsLoaded(): Promise<void> {
+		if (!this.abbreviationsLoaded && vscode.workspace.workspaceFolders) {
+			await this.loadCustomAbbreviations();
+			this.folderAbbreviations = generateFolderAbbreviations(
+				vscode.workspace.workspaceFolders,
+				this.customAbbreviations
+			);
+			this.abbreviationsLoaded = true;
+		}
 	}
 
 	setFilter(text: string): void {
@@ -270,10 +332,8 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 	}
 
 	async getAllTasks(): Promise<(TaskTreeItem | LaunchConfigItem)[]> {
-		// Ensure abbreviations are generated
-		if (vscode.workspace.workspaceFolders && this.folderAbbreviations.size === 0) {
-			this.folderAbbreviations = generateFolderAbbreviations(vscode.workspace.workspaceFolders);
-		}
+		// Ensure abbreviations are loaded (including custom ones)
+		await this.ensureAbbreviationsLoaded();
 
 		const tasks = await this.getDedicatedTasks();
 		const launchConfigs = await this.getDedicatedLaunchConfigs();
@@ -297,10 +357,8 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 			return [];
 		}
 
-		// Ensure abbreviations are generated
-		if (this.folderAbbreviations.size === 0) {
-			this.folderAbbreviations = generateFolderAbbreviations(vscode.workspace.workspaceFolders);
-		}
+		// Ensure abbreviations are loaded (including custom ones)
+		await this.ensureAbbreviationsLoaded();
 
 		if (!element) {
 			// Root level

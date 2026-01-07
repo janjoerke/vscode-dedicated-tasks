@@ -201,6 +201,7 @@ Standard VS Code launch configurations with optional `dedicatedTasks` metadata a
 Extension configuration file (auto-generated when you configure status bar items):
 ```json
 {
+  "abbreviation": "API",
   "statusBar": {
     "itemNames": ["Build", "Debug"],
     "groups": [["Development", "Build"]]
@@ -209,6 +210,7 @@ Extension configuration file (auto-generated when you configure status bar items
 ```
 
 **File structure:**
+- `abbreviation`: Optional custom folder abbreviation (overrides auto-generated 3-character abbreviation)
 - `statusBar.itemNames`: Array of task/launch config names to show in status bar
 - `statusBar.groups`: Array of group paths - all items in these groups will be shown
 
@@ -255,6 +257,7 @@ Add this object under `tasks[].options` in your `tasks.json`, or directly in eac
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `label` | string | No | Display label for the task/config (defaults to task's `label` or config's `name`) |
+| `statusbarLabel` | string | No | Shorthand label for status bar display (defaults to `label` if not set) |
 | `detail` | string | No | Additional detail text shown below the item label |
 | `hide` | boolean | No | Set to `true` to hide this item from the UI (default: `false`) |
 | `groups` | array | **Yes** | Array of group paths. Each item can be a string for single-level groups or an array of strings for multi-level hierarchies |

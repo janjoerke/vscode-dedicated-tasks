@@ -2,6 +2,20 @@
 
 All notable changes to the "Dedicated tasks" extension will be documented in this file.
 
+## [0.2.0] - 2026-01-07
+
+### Added
+- **`statusbarLabel` field**: New optional field in `dedicatedTasks` configuration to specify a shorthand label for status bar display. Falls back to `label` if not set.
+- **Custom folder abbreviations**: New `abbreviation` field in `.vscode/dedicated-tasks.json` allows overriding the auto-generated 3-character folder abbreviation with a custom value.
+- **Schema for dedicated-tasks.json**: Added JSON schema for IntelliSense support when editing `.vscode/dedicated-tasks.json`.
+
+### Changed
+- Status bar now uses `statusbarLabel` when available, allowing shorter labels in the status bar while keeping descriptive labels in the tree view.
+- Folder abbreviations now check for custom values in `dedicated-tasks.json` before auto-generating.
+
+### Fixed
+- Fixed issue where updating status bar items would overwrite the `abbreviation` field in `dedicated-tasks.json`.
+
 ## [0.1.0] - 2026-01-06
 
 ### Added

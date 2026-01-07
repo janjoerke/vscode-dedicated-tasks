@@ -24,6 +24,7 @@ Both tasks and launch configurations use the same `dedicatedTasks` metadata stru
 ```json
 {
   "label": "$(icon) Display Name",  // Supports VS Code icon syntax
+  "statusbarLabel": "$(icon) Short",  // Optional: shorthand for status bar display
   "detail": "Description text",
   "groups": ["Build", ["Development", "Build"]],  // Can be string OR array for hierarchy
   "order": 1,  // Numeric sorting within groups
@@ -39,9 +40,21 @@ Both tasks and launch configurations use the same `dedicatedTasks` metadata stru
   "request": "launch",
   "dedicatedTasks": {
     "label": "$(debug) Debug Extension",
+    "statusbarLabel": "$(debug) Debug",
     "detail": "Launch extension in debug mode",
     "groups": [["Debug", "Extension"]],
     "order": 1
+  }
+}
+```
+
+**Per-Folder Configuration** (`.vscode/dedicated-tasks.json`):
+```json
+{
+  "abbreviation": "API",  // Optional: custom folder abbreviation (overrides auto-generated)
+  "statusBar": {
+    "itemNames": ["Build"],
+    "groups": [["Development"]]
   }
 }
 ```
@@ -76,7 +89,9 @@ The extension fully supports multi-folder workspaces:
 **Per-Folder Configuration**:
 - Each folder stores its status bar config in `.vscode/dedicated-tasks.json`
 - Status bar manager loads and merges configs from all folders
-- Config structure: `{ "statusBar": { "itemNames": [...], "groups": [[...]] } }`
+- Config structure: `{ "abbreviation": "XXX", "statusBar": { "itemNames": [...], "groups": [[...]] } }`
+- Custom `abbreviation` field overrides the auto-generated folder abbreviation
+- When saving status bar config, the `abbreviation` field is preserved
 
 ### Unified Tree with Two Item Types
 
@@ -187,8 +202,9 @@ Both item types extract icons using regex `/^\$\(([^)]+)\)\s*/`:
 
 ## Schema Validation
 
-Two schemas provide IntelliSense:
+Three schemas provide IntelliSense:
 - [schemas/tasks-schema.json](schemas/tasks-schema.json) - for tasks.json `options.dedicatedTasks`
 - [schemas/launch-schema.json](schemas/launch-schema.json) - for launch.json root-level `dedicatedTasks`
+- [schemas/dedicated-tasks-schema.json](schemas/dedicated-tasks-schema.json) - for `.vscode/dedicated-tasks.json` configuration
 
-Both registered via `jsonValidation` contribution point in [package.json](package.json). Changes to config structure must update both the TypeScript interface AND both schemas.
+All registered via `jsonValidation` contribution point in [package.json](package.json). Changes to config structure must update both the TypeScript interface AND the relevant schemas.

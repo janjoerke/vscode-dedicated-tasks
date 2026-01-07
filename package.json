@@ -2,7 +2,7 @@
   "name": "dedicated-tasks",
   "displayName": "Dedicated Tasks",
   "description": "Organize VS Code tasks and launch configs with hierarchical groups, icons, and status bar quick-access",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "janjoerke",
   "license": "MIT",
   "icon": "resources/tasks-icon.png",
@@ -132,6 +132,10 @@
       {
         "fileMatch": ".vscode/tasks.json",
         "url": "./schemas/tasks-schema.json"
+      },
+      {
+        "fileMatch": ".vscode/dedicated-tasks.json",
+        "url": "./schemas/dedicated-tasks-schema.json"
       }
     ],
     "configuration": {
