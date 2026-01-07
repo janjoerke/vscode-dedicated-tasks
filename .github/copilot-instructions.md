@@ -28,7 +28,8 @@ Both tasks and launch configurations use the same `dedicatedTasks` metadata stru
   "detail": "Description text",
   "groups": ["Build", ["Development", "Build"]],  // Can be string OR array for hierarchy
   "order": 1,  // Numeric sorting within groups
-  "hide": false  // Exclude from UI
+  "hide": false,  // Exclude from UI
+  "category": "Development"  // Optional: top-level category (defaults to "default")
 }
 ```
 
@@ -43,7 +44,8 @@ Both tasks and launch configurations use the same `dedicatedTasks` metadata stru
     "statusbarLabel": "$(debug) Debug",
     "detail": "Launch extension in debug mode",
     "groups": [["Debug", "Extension"]],
-    "order": 1
+    "order": 1,
+    "category": "Development"  // Optional: top-level category
   }
 }
 ```
@@ -157,6 +159,32 @@ Both item types extract icons using regex `/^\$\(([^)]+)\)\s*/`:
 - Default icons: `play` for tasks, `debug-start` for launch configs
 - Always preserve this pattern when displaying labels
 
+### Category Support
+
+The extension supports top-level categorization of tasks and launch configs:
+
+**Category Tracking** (`TasksTreeDataProvider`):
+- `selectedCategory`: Currently active category (defaults to `DEFAULT_CATEGORY = 'default'`)
+- `availableCategories`: Array of all unique categories found across tasks/launch configs
+- `onDidChangeCategories`: Event fired when available categories change
+- `collectCategories()`: Scans all items (with `skipCategoryFilter=true`) to build category list
+
+**Category Filtering**:
+- `getDedicatedTasks()` and `getDedicatedLaunchConfigs()` accept `skipCategoryFilter` parameter
+- When `false` (default), only items matching `selectedCategory` are returned
+- When `true`, all items are returned (used by `collectCategories()` to build the category list)
+- `getAllTasks()` returns category-filtered items for status bar
+
+**Category UI**:
+- `dedicatedTasks.selectCategory` command shows QuickPick with all categories
+- Category dropdown button visible only when `dedicatedTasks.hasMultipleCategories` context is true
+- `treeView.title` dynamically updates to show current category name
+- Status bar updates when category changes to show only items from selected category
+
+**Category Visibility Logic**:
+- Dropdown hidden when all tasks are in the default category
+- `hasMultiple = categories.length > 1 || (categories.length === 1 && categories[0] !== DEFAULT_CATEGORY)`
+
 ## VS Code API Integration
 
 - **TreeDataProvider**: Implements `getTreeItem()`, `getChildren()`, and `getParent()`, fires `onDidChangeTreeData` for refresh
@@ -169,6 +197,7 @@ Both item types extract icons using regex `/^\$\(([^)]+)\)\s*/`:
   - `dedicatedTasks.expandAll` - Expand all tree nodes (reveals leaf items)
   - `dedicatedTasks.filter` - Show filter input box
   - `dedicatedTasks.clearFilter` - Clear active filter
+  - `dedicatedTasks.selectCategory` - Show category picker dropdown (visible only when multiple categories exist)
 - **Task Execution**: `vscode.tasks.executeTask(task)` for tasks
 - **Debug Execution**: `vscode.debug.startDebugging(folder, configName)` for launch configs
 - **Per-folder Config**: Status bar config persisted in each folder's `.vscode/dedicated-tasks.json`

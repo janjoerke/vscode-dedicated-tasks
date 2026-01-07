@@ -5,6 +5,9 @@ All notable changes to the "Dedicated tasks" extension will be documented in thi
 ## [0.2.0] - 2026-01-07
 
 ### Added
+- **Category support**: New optional `category` field allows organizing tasks at the top level. Tasks with different categories can be switched via a dropdown in the tree view header.
+- **Dynamic tree view title**: The tree view title updates to show the currently selected category (e.g., "DEDICATED TASKS: Development").
+- **Category filtering**: Both tree view and status bar only show tasks from the selected category.
 - **`statusbarLabel` field**: New optional field in `dedicatedTasks` configuration to specify a shorthand label for status bar display. Falls back to `label` if not set.
 - **Custom folder abbreviations**: New `abbreviation` field in `.vscode/dedicated-tasks.json` allows overriding the auto-generated 3-character folder abbreviation with a custom value.
 - **Schema for dedicated-tasks.json**: Added JSON schema for IntelliSense support when editing `.vscode/dedicated-tasks.json`.
@@ -12,6 +15,7 @@ All notable changes to the "Dedicated tasks" extension will be documented in thi
 ### Changed
 - Status bar now uses `statusbarLabel` when available, allowing shorter labels in the status bar while keeping descriptive labels in the tree view.
 - Folder abbreviations now check for custom values in `dedicated-tasks.json` before auto-generating.
+- Status bar items are now filtered by the currently selected category.
 
 ### Fixed
 - Fixed issue where updating status bar items would overwrite the `abbreviation` field in `dedicated-tasks.json`.

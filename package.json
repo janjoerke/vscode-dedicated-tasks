@@ -92,10 +92,20 @@
         "command": "dedicatedTasks.clearFilter",
         "title": "Clear Filter",
         "icon": "$(close)"
+      },
+      {
+        "command": "dedicatedTasks.selectCategory",
+        "title": "Select Category",
+        "icon": "$(list-selection)"
       }
     ],
     "menus": {
       "view/title": [
+        {
+          "command": "dedicatedTasks.selectCategory",
+          "when": "view == dedicatedTasks.tasksView && dedicatedTasks.hasMultipleCategories",
+          "group": "navigation@0"
+        },
         {
           "command": "dedicatedTasks.filter",
           "when": "view == dedicatedTasks.tasksView && !dedicatedTasks.filterActive",

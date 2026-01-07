@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { TasksTreeDataProvider, GroupTreeItem, WorkspaceFolderItem, TaskTreeItem, LaunchConfigItem } from './tasksTreeProvider';
+import { TasksTreeDataProvider, GroupTreeItem, WorkspaceFolderItem, TaskTreeItem, LaunchConfigItem, DEFAULT_CATEGORY } from './tasksTreeProvider';
 import { StatusBarManager } from './statusBarManager';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -17,10 +17,32 @@ export function activate(context: vscode.ExtensionContext) {
 		showCollapseAll: false // We'll use our own button
 	});
 
+	// Update category visibility context and tree view title
+	const updateCategoryContext = () => {
+		const categories = tasksProvider.getAvailableCategories();
+		const currentCategory = tasksProvider.getCategory();
+		const hasMultiple = categories.length > 1 || (categories.length === 1 && categories[0] !== DEFAULT_CATEGORY);
+		vscode.commands.executeCommand('setContext', 'dedicatedTasks.hasMultipleCategories', hasMultiple);
+
+		// Update tree view title to show current category
+		if (hasMultiple) {
+			const displayCategory = currentCategory === DEFAULT_CATEGORY ? 'Default' : currentCategory;
+			treeView.title = displayCategory;
+		} else {
+			treeView.title = 'Tasks';
+		}
+	};
+
+	// Listen for category changes - also update status bar
+	tasksProvider.onDidChangeCategories(() => {
+		updateCategoryContext();
+	});
+
 	// Update status bar when tasks change
 	const updateStatusBar = async () => {
 		const tasks = await tasksProvider.getAllTasks();
 		await statusBarManager.updateStatusBar(tasks);
+		updateCategoryContext();
 	};
 
 	// Initial status bar update
@@ -101,6 +123,28 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('dedicatedTasks.clearFilter', async () => {
 			tasksProvider.setFilter('');
 			vscode.commands.executeCommand('setContext', 'dedicatedTasks.filterActive', false);
+		}),
+		vscode.commands.registerCommand('dedicatedTasks.selectCategory', async () => {
+			const categories = tasksProvider.getAvailableCategories();
+			const currentCategory = tasksProvider.getCategory();
+
+			const items = categories.map(cat => ({
+				label: cat === DEFAULT_CATEGORY ? 'Default' : cat,
+				description: cat === currentCategory ? '$(check) Current' : undefined,
+				category: cat
+			}));
+
+			const selected = await vscode.window.showQuickPick(items, {
+				placeHolder: 'Select a category',
+				title: 'Task Categories'
+			});
+
+			if (selected) {
+				tasksProvider.setCategory(selected.category);
+				updateCategoryContext();
+				// Update status bar with tasks from the new category
+				updateStatusBar();
+			}
 		}),
 		treeView
 	);
