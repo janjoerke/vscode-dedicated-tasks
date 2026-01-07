@@ -20,44 +20,11 @@ export function activate(context: vscode.ExtensionContext) {
 	// Update status bar when tasks change
 	const updateStatusBar = async () => {
 		const tasks = await tasksProvider.getAllTasks();
-		statusBarManager.updateStatusBar(tasks);
+		await statusBarManager.updateStatusBar(tasks);
 	};
 
 	// Initial status bar update
 	updateStatusBar();
-
-	// Register commands
-	context.subscriptions.push(
-		vscode.commands.registerCommand('dedicatedTasks.runTask', (task: vscode.Task) => {
-			vscode.tasks.executeTask(task);
-		})
-	);
-	context.subscriptions.push(
-		vscode.commands.registerCommand('dedicatedTasks.runLaunchConfig', async (configName: string, folder: vscode.WorkspaceFolder) => {
-			await vscode.debug.startDebugging(folder, configName);
-		})
-	);
-	context.subscriptions.push(
-		vscode.commands.registerCommand('dedicatedTasks.refresh', () => {
-			tasksProvider.refresh();
-			updateStatusBar();
-		})
-	);
-
-	context.subscriptions.push(
-		vscode.commands.registerCommand('dedicatedTasks.configureStatusBar', async () => {
-			const tasks = await tasksProvider.getAllTasks();
-			await statusBarManager.configureStatusBar(tasks);
-		})
-	);
-
-	// Collapse all command
-	context.subscriptions.push(
-		vscode.commands.registerCommand('dedicatedTasks.collapseAll', async () => {
-			// Use the built-in collapse all for the view
-			await vscode.commands.executeCommand('workbench.actions.treeView.dedicatedTasks.tasksView.collapseAll');
-		})
-	);
 
 	// Helper function to collect all leaf items (tasks and launch configs)
 	const collectLeafItems = async (elements: any[]): Promise<any[]> => {
@@ -87,15 +54,30 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	};
 
-	// Expand all command
+	// Register commands
 	context.subscriptions.push(
+		vscode.commands.registerCommand('dedicatedTasks.runTask', (task: vscode.Task) => {
+			vscode.tasks.executeTask(task);
+		}),
+		vscode.commands.registerCommand('dedicatedTasks.runLaunchConfig', async (configName: string, folder: vscode.WorkspaceFolder) => {
+			await vscode.debug.startDebugging(folder, configName);
+		}),
+		vscode.commands.registerCommand('dedicatedTasks.refresh', () => {
+			tasksProvider.refresh();
+			updateStatusBar();
+		}),
+		vscode.commands.registerCommand('dedicatedTasks.configureStatusBar', async () => {
+			const tasks = await tasksProvider.getAllTasks();
+			await statusBarManager.configureStatusBar(tasks);
+		}),
+		vscode.commands.registerCommand('dedicatedTasks.collapseAll', async () => {
+			// Use the built-in collapse all for the view
+			await vscode.commands.executeCommand('workbench.actions.treeView.dedicatedTasks.tasksView.collapseAll');
+		}),
+
 		vscode.commands.registerCommand('dedicatedTasks.expandAll', async () => {
 			await expandAllItems();
-		})
-	);
-
-	// Filter command
-	context.subscriptions.push(
+		}),
 		vscode.commands.registerCommand('dedicatedTasks.filter', async () => {
 			const filterText = await vscode.window.showInputBox({
 				prompt: 'Filter tasks by name',
@@ -115,19 +97,13 @@ export function activate(context: vscode.ExtensionContext) {
 					}, 100);
 				}
 			}
-		})
-	);
-
-	// Clear filter command
-	context.subscriptions.push(
+		}),
 		vscode.commands.registerCommand('dedicatedTasks.clearFilter', async () => {
 			tasksProvider.setFilter('');
 			vscode.commands.executeCommand('setContext', 'dedicatedTasks.filterActive', false);
-		})
+		}),
+		treeView
 	);
-
-	// Register tree view
-	context.subscriptions.push(treeView);
 
 	// Watch for tasks.json changes
 	const tasksJsonWatcher = vscode.workspace.createFileSystemWatcher('**/.vscode/tasks.json');
@@ -174,11 +150,15 @@ export function activate(context: vscode.ExtensionContext) {
 		updateStatusBar();
 	});
 
-	context.subscriptions.push(tasksJsonWatcher);
-	context.subscriptions.push(launchJsonWatcher);
-	context.subscriptions.push(configWatcher);
-	context.subscriptions.push(statusBarManager);
+	context.subscriptions.push(
+		tasksJsonWatcher,
+		launchJsonWatcher,
+		configWatcher,
+		statusBarManager
+	);
 }
 
-export function deactivate() { }
+export function deactivate() {
+	// No cleanup needed
+}
 

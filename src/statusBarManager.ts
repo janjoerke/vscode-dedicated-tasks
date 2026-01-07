@@ -12,18 +12,21 @@ interface MergedStatusBarConfig {
 }
 
 export class StatusBarManager {
-	private statusBarItems: Map<string, vscode.StatusBarItem> = new Map();
+	private readonly statusBarItems: Map<string, vscode.StatusBarItem> = new Map();
 	private config: MergedStatusBarConfig;
 	private folderAbbreviations: Map<string, string> = new Map();
 	private readonly configFileName = 'dedicated-tasks.json';
+	private configLoaded: boolean = false;
 
 	constructor() {
 		this.config = { folders: new Map() };
-		this.loadConfigAsync();
 	}
 
-	private async loadConfigAsync(): Promise<void> {
-		this.config = await this.loadAllConfigs();
+	private async ensureConfigLoaded(): Promise<void> {
+		if (!this.configLoaded) {
+			this.config = await this.loadAllConfigs();
+			this.configLoaded = true;
+		}
 	}
 
 	private async loadAllConfigs(): Promise<MergedStatusBarConfig> {
@@ -73,6 +76,7 @@ export class StatusBarManager {
 
 	async reloadConfig(): Promise<void> {
 		this.config = await this.loadAllConfigs();
+		this.configLoaded = true;
 	}
 
 	private getFolderAbbreviation(folder: vscode.WorkspaceFolder): string {
@@ -83,7 +87,10 @@ export class StatusBarManager {
 		return (vscode.workspace.workspaceFolders?.length ?? 0) > 1;
 	}
 
-	updateStatusBar(items: (TaskTreeItem | LaunchConfigItem)[]): void {
+	async updateStatusBar(items: (TaskTreeItem | LaunchConfigItem)[]): Promise<void> {
+		// Ensure config is loaded
+		await this.ensureConfigLoaded();
+
 		// Clear existing status bar items
 		this.clearStatusBar();
 
@@ -108,7 +115,8 @@ export class StatusBarManager {
 			// Get name and label depending on item type
 			const itemName = item instanceof TaskTreeItem ? item.task.name : item.launchConfig.name;
 			const labelText = item.config.label || itemName;
-			const iconMatch = labelText.match(/^\$\(([^)]+)\)\s*/);
+			const iconRegex = /^\$\(([^)]+)\)\s*/;
+			const iconMatch = iconRegex.exec(labelText);
 			const icon = iconMatch ? iconMatch[1] : '';
 			const displayLabel = iconMatch ? labelText.substring(iconMatch[0].length) : labelText;
 
@@ -409,7 +417,7 @@ export class StatusBarManager {
 				folderUri
 			});
 
-			const sortedFolderItems = folderData.items.sort((a, b) => {
+			const sortedFolderItems = [...folderData.items].sort((a, b) => {
 				const nameA = a instanceof TaskTreeItem ? a.task.name : a.launchConfig.name;
 				const nameB = b instanceof TaskTreeItem ? b.task.name : b.launchConfig.name;
 				return nameA.localeCompare(nameB);
@@ -421,7 +429,8 @@ export class StatusBarManager {
 				const labelText = item.config.label || itemName;
 
 				// Extract icon if present
-				const iconMatch = labelText.match(/^\$\(([^)]+)\)\s*/);
+				const iconRegex = /^\$\(([^)]+)\)\s*/;
+				const iconMatch = iconRegex.exec(labelText);
 				const displayLabel = iconMatch ? labelText.substring(iconMatch[0].length) : labelText;
 
 				// Add type indicator
