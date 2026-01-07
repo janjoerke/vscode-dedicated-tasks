@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Update tree view title to show current category
 		if (hasMultiple) {
-			const displayCategory = currentCategory === DEFAULT_CATEGORY ? 'Default' : currentCategory;
+			const displayCategory = currentCategory === DEFAULT_CATEGORY ? 'default' : currentCategory;
 			treeView.title = displayCategory;
 		} else {
 			treeView.title = 'Tasks';
@@ -129,7 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const currentCategory = tasksProvider.getCategory();
 
 			const items = categories.map(cat => ({
-				label: cat === DEFAULT_CATEGORY ? 'Default' : cat,
+				label: cat,
 				description: cat === currentCategory ? '$(check) Current' : undefined,
 				category: cat
 			}));

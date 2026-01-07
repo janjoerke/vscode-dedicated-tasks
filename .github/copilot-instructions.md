@@ -29,7 +29,7 @@ Both tasks and launch configurations use the same `dedicatedTasks` metadata stru
   "groups": ["Build", ["Development", "Build"]],  // Can be string OR array for hierarchy
   "order": 1,  // Numeric sorting within groups
   "hide": false,  // Exclude from UI
-  "category": "Development"  // Optional: top-level category (defaults to "default")
+  "categories": ["Development", "CI/CD"]  // Optional: array of categories (defaults to ["default"])
 }
 ```
 
@@ -45,7 +45,7 @@ Both tasks and launch configurations use the same `dedicatedTasks` metadata stru
     "detail": "Launch extension in debug mode",
     "groups": [["Debug", "Extension"]],
     "order": 1,
-    "category": "Development"  // Optional: top-level category
+    "categories": ["Development"]  // Optional: array of categories
   }
 }
 ```
@@ -167,12 +167,13 @@ The extension supports top-level categorization of tasks and launch configs:
 - `selectedCategory`: Currently active category (defaults to `DEFAULT_CATEGORY = 'default'`)
 - `availableCategories`: Array of all unique categories found across tasks/launch configs
 - `onDidChangeCategories`: Event fired when available categories change
-- `collectCategories()`: Scans all items (with `skipCategoryFilter=true`) to build category list
+- `collectCategories()`: Scans all items (with `skipCategoryFilter=true`) to build category list from `categories` arrays
 
 **Category Filtering**:
 - `getDedicatedTasks()` and `getDedicatedLaunchConfigs()` accept `skipCategoryFilter` parameter
-- When `false` (default), only items matching `selectedCategory` are returned
+- When `false` (default), only items whose `categories` array includes `selectedCategory` are returned
 - When `true`, all items are returned (used by `collectCategories()` to build the category list)
+- Tasks can belong to multiple categories via the `categories` array
 - `getAllTasks()` returns category-filtered items for status bar
 
 **Category UI**:

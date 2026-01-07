@@ -5,7 +5,7 @@ All notable changes to the "Dedicated tasks" extension will be documented in thi
 ## [0.2.0] - 2026-01-07
 
 ### Added
-- **Category support**: New optional `category` field allows organizing tasks at the top level. Tasks with different categories can be switched via a dropdown in the tree view header.
+- **Category support**: New optional `categories` array field allows organizing tasks at the top level. Tasks can belong to multiple categories. Switch between categories via a dropdown in the tree view header.
 - **Dynamic tree view title**: The tree view title updates to show the currently selected category (e.g., "DEDICATED TASKS: Development").
 - **Category filtering**: Both tree view and status bar only show tasks from the selected category.
 - **`statusbarLabel` field**: New optional field in `dedicatedTasks` configuration to specify a shorthand label for status bar display. Falls back to `label` if not set.

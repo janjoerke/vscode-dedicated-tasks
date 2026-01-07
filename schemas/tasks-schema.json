@@ -69,10 +69,13 @@
                     "description": "Sort order within the group (lower numbers appear first)",
                     "default": 0
                   },
-                  "category": {
-                    "type": "string",
-                    "description": "Category for top-level task organization. Tasks with no category default to 'default'. When multiple categories exist, a dropdown appears in the tree view header.",
-                    "default": "default"
+                  "categories": {
+                    "type": "array",
+                    "description": "Categories for top-level task organization. Tasks with no categories default to ['default']. When multiple categories exist, a dropdown appears in the tree view header. Tasks can belong to multiple categories.",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": ["default"]
                   }
                 },
                 "required": ["groups"]

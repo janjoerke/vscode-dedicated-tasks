@@ -15,7 +15,7 @@ If you have many tasks and debug configurations in your workspace, the default V
 
 ## Features
 
-- **Category Support**: Organize tasks into categories for top-level separation. Switch between categories via a dropdown in the tree view header.
+- **Category Support**: Organize tasks into categories for top-level separation. Tasks can belong to multiple categories. Switch between categories via a dropdown in the tree view header.
 - **Multi-folder Workspace Support**: Full support for multi-folder workspaces with folder abbreviations and per-folder configuration
 - **Tree View Controls**: Filter, expand all, and collapse all buttons for easy navigation
 - **Dedicated Activity Bar View**: Access your tasks and launch configs from a dedicated icon in the VS Code activity bar
@@ -138,12 +138,13 @@ Add the `dedicatedTasks` configuration to your tasks in `.vscode/tasks.json`:
 
 Organize tasks at the top level using categories:
 
-1. Add a `category` field to any task or launch config's `dedicatedTasks` configuration
-2. Tasks without a category default to "default"
-3. When multiple categories exist, a dropdown button appears in the tree view header
-4. Click the dropdown to switch between categories
-5. The tree view title updates to show the current category (e.g., "DEDICATED TASKS: Development")
-6. Status bar items are also filtered to show only tasks from the selected category
+1. Add a `categories` array to any task or launch config's `dedicatedTasks` configuration
+2. Tasks without categories default to `["default"]`
+3. Tasks can belong to multiple categories simultaneously
+4. When multiple categories exist, a dropdown button appears in the tree view header
+5. Click the dropdown to switch between categories
+6. The tree view title updates to show the current category (e.g., "DEDICATED TASKS: Development")
+7. Status bar items are also filtered to show only tasks from the selected category
 
 **Example with categories:**
 ```json
@@ -155,7 +156,7 @@ Organize tasks at the top level using categories:
     "dedicatedTasks": {
       "label": "$(package) Production Build",
       "groups": ["Build"],
-      "category": "Production"
+      "categories": ["Production", "CI/CD"]
     }
   }
 }
@@ -290,7 +291,7 @@ Add this object under `tasks[].options` in your `tasks.json`, or directly in eac
 | `hide` | boolean | No | Set to `true` to hide this item from the UI (default: `false`) |
 | `groups` | array | **Yes** | Array of group paths. Each item can be a string for single-level groups or an array of strings for multi-level hierarchies |
 | `order` | number | No | Sort order within the group - tasks and launch configs sort together (lower numbers appear first, default: `0`) |
-| `category` | string | No | Top-level category for organizing tasks. Tasks with no category default to "default". When multiple categories exist, a dropdown appears in the tree view header. |
+| `categories` | string[] | No | Array of categories for top-level organization. Tasks with no categories default to `["default"]`. When multiple categories exist, a dropdown appears in the tree view header. Tasks can belong to multiple categories. |
 
 ### Group Path Examples
 

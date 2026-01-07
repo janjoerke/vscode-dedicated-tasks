@@ -7,7 +7,7 @@ export interface DedicatedTasksConfig {
 	hide?: boolean;
 	groups: (string | string[])[];
 	order?: number;
-	category?: string;
+	categories?: string[];
 }
 
 export const DEFAULT_CATEGORY = 'default';
@@ -356,8 +356,10 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 		const launchConfigs = await this.getDedicatedLaunchConfigs(true); // skip category filter
 
 		for (const item of [...tasks, ...launchConfigs]) {
-			const category = item.config.category || DEFAULT_CATEGORY;
-			categories.add(category);
+			const itemCategories = item.config.categories || [DEFAULT_CATEGORY];
+			for (const cat of itemCategories) {
+				categories.add(cat);
+			}
 		}
 
 		const newCategories = Array.from(categories).sort((a, b) => {
@@ -613,8 +615,8 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 
 			if (config && !config.hide) {
 				// Filter by category unless skipped (for category collection)
-				const taskCategory = config.category || DEFAULT_CATEGORY;
-				if (!skipCategoryFilter && taskCategory !== this.selectedCategory) {
+				const taskCategories = config.categories || [DEFAULT_CATEGORY];
+				if (!skipCategoryFilter && !taskCategories.includes(this.selectedCategory)) {
 					continue;
 				}
 
@@ -643,8 +645,8 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 
 			if (config && !config.hide) {
 				// Filter by category unless skipped
-				const taskCategory = config.category || DEFAULT_CATEGORY;
-				if (!skipCategoryFilter && taskCategory !== this.selectedCategory) {
+				const taskCategories = config.categories || [DEFAULT_CATEGORY];
+				if (!skipCategoryFilter && !taskCategories.includes(this.selectedCategory)) {
 					continue;
 				}
 
@@ -746,8 +748,8 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 						const dedicatedConfig = config.dedicatedTasks as DedicatedTasksConfig;
 
 						// Filter by category unless skipped
-						const configCategory = dedicatedConfig.category || DEFAULT_CATEGORY;
-						if (!skipCategoryFilter && configCategory !== this.selectedCategory) {
+						const configCategories = dedicatedConfig.categories || [DEFAULT_CATEGORY];
+						if (!skipCategoryFilter && !configCategories.includes(this.selectedCategory)) {
 							continue;
 						}
 
