@@ -2,6 +2,14 @@
 
 All notable changes to the "Dedicated tasks" extension will be documented in this file.
 
+## [0.3.0] - 2026-01-08
+
+### Added
+- **`showDetailsInTreeView` setting**: New setting to control whether task/launch config details are displayed in the tree view. When disabled (default), details are only visible in tooltips on hover. Enable `dedicatedTasks.showDetailsInTreeView` in VS Code settings to always show details.
+
+### Changed
+- Task and launch config details are now hidden from the tree view by default for a cleaner appearance. Details remain visible in tooltips.
+
 ## [0.2.0] - 2026-01-07
 
 ### Added

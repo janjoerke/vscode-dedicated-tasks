@@ -352,7 +352,12 @@ Both items will:
 
 ## Extension Settings
 
-This extension does not add any VS Code settings. All configuration is done through `tasks.json` and `launch.json`.
+This extension contributes the following settings:
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `dedicatedTasks.showDetailsInTreeView` | boolean | `false` | Always show task/launch config details in the tree view. When disabled, details are only visible in tooltips. |
+| `dedicatedTasks.suppressLaunchJsonWarnings` | boolean | `false` | Suppress validation warnings for `dedicatedTasks` property in launch.json. |
 
 ## Tips & Tricks
 
@@ -427,58 +432,6 @@ VS Code's built-in schema for `launch.json` doesn't recognize the `dedicatedTask
 3. **Disable schema validation** for launch.json (not recommended as it disables all validation)
 
 This limitation exists because VS Code doesn't allow extensions to extend the built-in launch.json schema, only replace it entirely (which would break all standard IntelliSense). The `tasks.json` schema works fine because VS Code allows custom properties in the `options` object.
-
-## Release Notes
-
-### 0.1.0
-
-**Multi-folder Workspace Support:**
-- Workspace folders appear as top-level items in the tree view
-- Unique 3-character abbreviations differentiate tasks across folders (e.g., `[VSC]`, `[API]`)
-- Per-folder status bar configuration stored in each folder's `.vscode/dedicated-tasks.json`
-
-**Tree View Controls:**
-- Filter button to search tasks by name, label, detail, groups, or folder abbreviation
-- Expand all / Collapse all buttons for quick navigation
-- Filter auto-expands matching items; clearing filter preserves state
-
-### 0.0.1
-
-Initial release of Dedicated tasks:
-
-**Core Features:**
-- Dedicated activity bar view for task and launch configuration organization
-- Unified tree view showing both tasks and launch configs
-- Hierarchical grouping with unlimited nesting levels
-- Items can appear in multiple groups simultaneously
-- Custom labels and descriptions for better clarity
-- Tasks and launch configs can share groups and sort together
-
-**Dual File Support:**
-- Configure tasks in `.vscode/tasks.json`
-- Configure launch configs in `.vscode/launch.json`
-- Same metadata structure for both types
-- Live reload when either file changes
-
-**Icon Support:**
-- Full VS Code icon library integration
-- Icons display in both tree view and status bar
-- Simple syntax: `$(icon-name) Label`
-- Default icons: `$(play)` for tasks, `$(debug-start)` for launch configs
-
-**Status Bar Integration:**
-- Pin individual tasks/launch configs or entire groups to status bar
-- Hierarchical group selection (parent groups include all children)
-- One-click execution from status bar (run task or start debugging)
-- Persistent configuration across sessions
-- Visual indicators for selected items
-- Mixed task and launch config support
-
-**Developer Experience:**
-- JSON schema validation for both tasks.json and launch.json
-- IntelliSense support in both configuration files
-- Sorting and ordering control
-- Selective item visibility
 
 ## License
 

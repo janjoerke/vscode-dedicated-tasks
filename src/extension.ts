@@ -194,10 +194,18 @@ export function activate(context: vscode.ExtensionContext) {
 		updateStatusBar();
 	});
 
+	// Watch for configuration changes
+	const configChangeListener = vscode.workspace.onDidChangeConfiguration(e => {
+		if (e.affectsConfiguration('dedicatedTasks.showDetailsInTreeView')) {
+			tasksProvider.refresh();
+		}
+	});
+
 	context.subscriptions.push(
 		tasksJsonWatcher,
 		launchJsonWatcher,
 		configWatcher,
+		configChangeListener,
 		statusBarManager
 	);
 }

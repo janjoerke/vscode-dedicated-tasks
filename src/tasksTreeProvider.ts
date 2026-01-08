@@ -45,7 +45,9 @@ export class TaskTreeItem extends vscode.TreeItem {
 		// Unique ID for this task item
 		this.id = `task:${workspaceFolder.uri.toString()}:${task.name}`;
 
-		this.description = config.detail || '';
+		// Show details based on user setting
+		const showDetails = vscode.workspace.getConfiguration('dedicatedTasks').get<boolean>('showDetailsInTreeView', false);
+		this.description = showDetails ? (config.detail || '') : '';
 		this.tooltip = `${displayLabel}${config.detail ? '\n' + config.detail : ''}`;
 		this.contextValue = 'task';
 
@@ -83,7 +85,9 @@ export class LaunchConfigItem extends vscode.TreeItem {
 		// Unique ID for this launch config item
 		this.id = `launch:${workspaceFolder.uri.toString()}:${launchConfig.name}`;
 
-		this.description = config.detail || '';
+		// Show details based on user setting
+		const showDetails = vscode.workspace.getConfiguration('dedicatedTasks').get<boolean>('showDetailsInTreeView', false);
+		this.description = showDetails ? (config.detail || '') : '';
 		this.tooltip = `${displayLabel}${config.detail ? '\n' + config.detail : ''}`;
 		this.contextValue = 'launchConfig';
 

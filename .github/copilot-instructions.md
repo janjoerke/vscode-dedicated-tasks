@@ -186,6 +186,15 @@ The extension supports top-level categorization of tasks and launch configs:
 - Dropdown hidden when all tasks are in the default category
 - `hasMultiple = categories.length > 1 || (categories.length === 1 && categories[0] !== DEFAULT_CATEGORY)`
 
+## Extension Settings
+
+The extension provides user-configurable settings:
+
+- **`dedicatedTasks.showDetailsInTreeView`**: When `true`, shows detail text in the tree view. When `false` (default), details only appear in tooltips.
+- **`dedicatedTasks.suppressLaunchJsonWarnings`**: Suppresses schema validation warnings for `dedicatedTasks` in launch.json.
+
+Settings are read via `vscode.workspace.getConfiguration('dedicatedTasks')`. The extension listens for configuration changes and refreshes the tree view when `showDetailsInTreeView` changes.
+
 ## VS Code API Integration
 
 - **TreeDataProvider**: Implements `getTreeItem()`, `getChildren()`, and `getParent()`, fires `onDidChangeTreeData` for refresh
