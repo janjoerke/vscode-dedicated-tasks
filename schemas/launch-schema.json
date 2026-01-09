@@ -54,9 +54,9 @@
                 "description": "Sort order within the group (lower numbers appear first)",
                 "default": 0
               },
-              "categories": {
+              "configurations": {
                 "type": "array",
-                "description": "Categories for top-level task organization. Configurations with no categories default to ['default']. When multiple categories exist, a dropdown appears in the tree view header. Configurations can belong to multiple categories.",
+                "description": "Configurations for top-level task organization. Configurations with no configurations default to ['default']. When multiple configurations exist, a dropdown appears in the tree view header. Configurations can belong to multiple configurations.",
                 "items": {
                   "type": "string"
                 },

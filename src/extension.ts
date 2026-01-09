@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { TasksTreeDataProvider, GroupTreeItem, WorkspaceFolderItem, TaskTreeItem, LaunchConfigItem, DEFAULT_CATEGORY } from './tasksTreeProvider';
+import { TasksTreeDataProvider, GroupTreeItem, WorkspaceFolderItem, TaskTreeItem, LaunchConfigItem, DEFAULT_CONFIGURATION } from './tasksTreeProvider';
 import { StatusBarManager } from './statusBarManager';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -17,32 +17,32 @@ export function activate(context: vscode.ExtensionContext) {
 		showCollapseAll: false // We'll use our own button
 	});
 
-	// Update category visibility context and tree view title
-	const updateCategoryContext = () => {
-		const categories = tasksProvider.getAvailableCategories();
-		const currentCategory = tasksProvider.getCategory();
-		const hasMultiple = categories.length > 1 || (categories.length === 1 && categories[0] !== DEFAULT_CATEGORY);
-		vscode.commands.executeCommand('setContext', 'dedicatedTasks.hasMultipleCategories', hasMultiple);
+	// Update configuration visibility context and tree view title
+	const updateConfigurationContext = () => {
+		const configurations = tasksProvider.getAvailableConfigurations();
+		const currentConfiguration = tasksProvider.getConfiguration();
+		const hasMultiple = configurations.length > 1 || (configurations.length === 1 && configurations[0] !== DEFAULT_CONFIGURATION);
+		vscode.commands.executeCommand('setContext', 'dedicatedTasks.hasMultipleConfigurations', hasMultiple);
 
-		// Update tree view title to show current category
+		// Update tree view title to show current configuration
 		if (hasMultiple) {
-			const displayCategory = currentCategory === DEFAULT_CATEGORY ? 'default' : currentCategory;
-			treeView.title = displayCategory;
+			const displayConfiguration = currentConfiguration === DEFAULT_CONFIGURATION ? 'default' : currentConfiguration;
+			treeView.title = displayConfiguration;
 		} else {
 			treeView.title = 'Tasks';
 		}
 	};
 
-	// Listen for category changes - also update status bar
-	tasksProvider.onDidChangeCategories(() => {
-		updateCategoryContext();
+	// Listen for configuration changes - also update status bar
+	tasksProvider.onDidChangeConfigurations(() => {
+		updateConfigurationContext();
 	});
 
 	// Update status bar when tasks change
 	const updateStatusBar = async () => {
 		const tasks = await tasksProvider.getAllTasks();
 		await statusBarManager.updateStatusBar(tasks);
-		updateCategoryContext();
+		updateConfigurationContext();
 	};
 
 	// Initial status bar update
@@ -124,25 +124,25 @@ export function activate(context: vscode.ExtensionContext) {
 			tasksProvider.setFilter('');
 			vscode.commands.executeCommand('setContext', 'dedicatedTasks.filterActive', false);
 		}),
-		vscode.commands.registerCommand('dedicatedTasks.selectCategory', async () => {
-			const categories = tasksProvider.getAvailableCategories();
-			const currentCategory = tasksProvider.getCategory();
+		vscode.commands.registerCommand('dedicatedTasks.selectConfiguration', async () => {
+			const configurations = tasksProvider.getAvailableConfigurations();
+			const currentConfiguration = tasksProvider.getConfiguration();
 
-			const items = categories.map(cat => ({
-				label: cat,
-				description: cat === currentCategory ? '$(check) Current' : undefined,
-				category: cat
+			const items = configurations.map(cfg => ({
+				label: cfg,
+				description: cfg === currentConfiguration ? '$(check) Current' : undefined,
+				configuration: cfg
 			}));
 
 			const selected = await vscode.window.showQuickPick(items, {
-				placeHolder: 'Select a category',
-				title: 'Task Categories'
+				placeHolder: 'Select a configuration',
+				title: 'Task Configurations'
 			});
 
 			if (selected) {
-				tasksProvider.setCategory(selected.category);
-				updateCategoryContext();
-				// Update status bar with tasks from the new category
+				tasksProvider.setConfiguration(selected.configuration);
+				updateConfigurationContext();
+				// Update status bar with tasks from the new configuration
 				updateStatusBar();
 			}
 		}),

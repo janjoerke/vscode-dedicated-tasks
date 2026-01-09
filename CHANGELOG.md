@@ -2,6 +2,21 @@
 
 All notable changes to the "Dedicated tasks" extension will be documented in this file.
 
+## [1.0.0] - 2026-01-09
+
+### ⚠️ BREAKING CHANGES
+- **Renamed `categories` to `configurations`**: The `categories` property in `dedicatedTasks` configuration has been renamed to `configurations` for improved clarity. Update your `tasks.json` and `launch.json` files to use the new property name.
+- **Renamed command**: `dedicatedTasks.selectCategory` is now `dedicatedTasks.selectConfiguration`.
+- **Renamed context key**: `dedicatedTasks.hasMultipleCategories` is now `dedicatedTasks.hasMultipleConfigurations`.
+
+### Changed
+- The dropdown in the tree view header now shows "Task Configurations" instead of "Task Categories".
+- All internal references updated from "category/categories" to "configuration/configurations".
+
+### Migration Guide
+Replace all occurrences in your workspace:
+- `"categories":` → `"configurations":`
+
 ## [0.3.0] - 2026-01-08
 
 ### Added

@@ -29,7 +29,7 @@ Both tasks and launch configurations use the same `dedicatedTasks` metadata stru
   "groups": ["Build", ["Development", "Build"]],  // Can be string OR array for hierarchy
   "order": 1,  // Numeric sorting within groups
   "hide": false,  // Exclude from UI
-  "categories": ["Development", "CI/CD"]  // Optional: array of categories (defaults to ["default"])
+  "configurations": ["Development", "CI/CD"]  // Optional: array of configurations (defaults to ["default"])
 }
 ```
 
@@ -45,7 +45,7 @@ Both tasks and launch configurations use the same `dedicatedTasks` metadata stru
     "detail": "Launch extension in debug mode",
     "groups": [["Debug", "Extension"]],
     "order": 1,
-    "categories": ["Development"]  // Optional: array of categories
+    "configurations": ["Development"]  // Optional: array of configurations
   }
 }
 ```
@@ -159,32 +159,32 @@ Both item types extract icons using regex `/^\$\(([^)]+)\)\s*/`:
 - Default icons: `play` for tasks, `debug-start` for launch configs
 - Always preserve this pattern when displaying labels
 
-### Category Support
+### Configuration Support
 
-The extension supports top-level categorization of tasks and launch configs:
+The extension supports top-level configuration filtering of tasks and launch configs:
 
-**Category Tracking** (`TasksTreeDataProvider`):
-- `selectedCategory`: Currently active category (defaults to `DEFAULT_CATEGORY = 'default'`)
-- `availableCategories`: Array of all unique categories found across tasks/launch configs
-- `onDidChangeCategories`: Event fired when available categories change
-- `collectCategories()`: Scans all items (with `skipCategoryFilter=true`) to build category list from `categories` arrays
+**Configuration Tracking** (`TasksTreeDataProvider`):
+- `selectedConfiguration`: Currently active configuration (defaults to `DEFAULT_CONFIGURATION = 'default'`)
+- `availableConfigurations`: Array of all unique configurations found across tasks/launch configs
+- `onDidChangeConfigurations`: Event fired when available configurations change
+- `collectConfigurations()`: Scans all items (with `skipConfigurationFilter=true`) to build configuration list from `configurations` arrays
 
-**Category Filtering**:
-- `getDedicatedTasks()` and `getDedicatedLaunchConfigs()` accept `skipCategoryFilter` parameter
-- When `false` (default), only items whose `categories` array includes `selectedCategory` are returned
-- When `true`, all items are returned (used by `collectCategories()` to build the category list)
-- Tasks can belong to multiple categories via the `categories` array
-- `getAllTasks()` returns category-filtered items for status bar
+**Configuration Filtering**:
+- `getDedicatedTasks()` and `getDedicatedLaunchConfigs()` accept `skipConfigurationFilter` parameter
+- When `false` (default), only items whose `configurations` array includes `selectedConfiguration` are returned
+- When `true`, all items are returned (used by `collectConfigurations()` to build the configuration list)
+- Tasks can belong to multiple configurations via the `configurations` array
+- `getAllTasks()` returns configuration-filtered items for status bar
 
-**Category UI**:
-- `dedicatedTasks.selectCategory` command shows QuickPick with all categories
-- Category dropdown button visible only when `dedicatedTasks.hasMultipleCategories` context is true
-- `treeView.title` dynamically updates to show current category name
-- Status bar updates when category changes to show only items from selected category
+**Configuration UI**:
+- `dedicatedTasks.selectConfiguration` command shows QuickPick with all configurations
+- Configuration dropdown button visible only when `dedicatedTasks.hasMultipleConfigurations` context is true
+- `treeView.title` dynamically updates to show current configuration name
+- Status bar updates when configuration changes to show only items from selected configuration
 
-**Category Visibility Logic**:
-- Dropdown hidden when all tasks are in the default category
-- `hasMultiple = categories.length > 1 || (categories.length === 1 && categories[0] !== DEFAULT_CATEGORY)`
+**Configuration Visibility Logic**:
+- Dropdown hidden when all tasks are in the default configuration
+- `hasMultiple = configurations.length > 1 || (configurations.length === 1 && configurations[0] !== DEFAULT_CONFIGURATION)`
 
 ## Extension Settings
 
@@ -207,7 +207,7 @@ Settings are read via `vscode.workspace.getConfiguration('dedicatedTasks')`. The
   - `dedicatedTasks.expandAll` - Expand all tree nodes (reveals leaf items)
   - `dedicatedTasks.filter` - Show filter input box
   - `dedicatedTasks.clearFilter` - Clear active filter
-  - `dedicatedTasks.selectCategory` - Show category picker dropdown (visible only when multiple categories exist)
+  - `dedicatedTasks.selectConfiguration` - Show configuration picker dropdown (visible only when multiple configurations exist)
 - **Task Execution**: `vscode.tasks.executeTask(task)` for tasks
 - **Debug Execution**: `vscode.debug.startDebugging(folder, configName)` for launch configs
 - **Per-folder Config**: Status bar config persisted in each folder's `.vscode/dedicated-tasks.json`

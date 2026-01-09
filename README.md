@@ -15,7 +15,7 @@ If you have many tasks and debug configurations in your workspace, the default V
 
 ## Features
 
-- **Category Support**: Organize tasks into categories for top-level separation. Tasks can belong to multiple categories. Switch between categories via a dropdown in the tree view header.
+- **Configuration Support**: Organize tasks into configurations for top-level separation. Tasks can belong to multiple configurations. Switch between configurations via a dropdown in the tree view header.
 - **Multi-folder Workspace Support**: Full support for multi-folder workspaces with folder abbreviations and per-folder configuration
 - **Tree View Controls**: Filter, expand all, and collapse all buttons for easy navigation
 - **Dedicated Activity Bar View**: Access your tasks and launch configs from a dedicated icon in the VS Code activity bar
@@ -134,19 +134,19 @@ Add the `dedicatedTasks` configuration to your tasks in `.vscode/tasks.json`:
 2. Your tasks and launch configs will be organized into collapsible groups
 3. Click on any task to run it, or click on any launch config to start debugging
 
-### 3. Use Categories (Optional)
+### 3. Use Configurations (Optional)
 
-Organize tasks at the top level using categories:
+Organize tasks at the top level using configurations:
 
-1. Add a `categories` array to any task or launch config's `dedicatedTasks` configuration
-2. Tasks without categories default to `["default"]`
-3. Tasks can belong to multiple categories simultaneously
-4. When multiple categories exist, a dropdown button appears in the tree view header
-5. Click the dropdown to switch between categories
-6. The tree view title updates to show the current category (e.g., "DEDICATED TASKS: Development")
-7. Status bar items are also filtered to show only tasks from the selected category
+1. Add a `configurations` array to any task or launch config's `dedicatedTasks` configuration
+2. Tasks without configurations default to `["default"]`
+3. Tasks can belong to multiple configurations simultaneously
+4. When multiple configurations exist, a dropdown button appears in the tree view header
+5. Click the dropdown to switch between configurations
+6. The tree view title updates to show the current configuration (e.g., "DEDICATED TASKS: Development")
+7. Status bar items are also filtered to show only tasks from the selected configuration
 
-**Example with categories:**
+**Example with configurations:**
 ```json
 {
   "label": "Build for Production",
@@ -156,7 +156,7 @@ Organize tasks at the top level using categories:
     "dedicatedTasks": {
       "label": "$(package) Production Build",
       "groups": ["Build"],
-      "categories": ["Production", "CI/CD"]
+      "configurations": ["Production", "CI/CD"]
     }
   }
 }
@@ -291,7 +291,7 @@ Add this object under `tasks[].options` in your `tasks.json`, or directly in eac
 | `hide` | boolean | No | Set to `true` to hide this item from the UI (default: `false`) |
 | `groups` | array | **Yes** | Array of group paths. Each item can be a string for single-level groups or an array of strings for multi-level hierarchies |
 | `order` | number | No | Sort order within the group - tasks and launch configs sort together (lower numbers appear first, default: `0`) |
-| `categories` | string[] | No | Array of categories for top-level organization. Tasks with no categories default to `["default"]`. When multiple categories exist, a dropdown appears in the tree view header. Tasks can belong to multiple categories. |
+| `configurations` | string[] | No | Array of configurations for top-level organization. Tasks with no configurations default to `["default"]`. When multiple configurations exist, a dropdown appears in the tree view header. Tasks can belong to multiple configurations. |
 
 ### Group Path Examples
 

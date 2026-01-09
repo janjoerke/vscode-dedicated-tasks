@@ -7,10 +7,10 @@ export interface DedicatedTasksConfig {
 	hide?: boolean;
 	groups: (string | string[])[];
 	order?: number;
-	categories?: string[];
+	configurations?: string[];
 }
 
-export const DEFAULT_CATEGORY = 'default';
+export const DEFAULT_CONFIGURATION = 'default';
 
 export type TreeItemType = TaskTreeItem | LaunchConfigItem | GroupTreeItem | WorkspaceFolderItem | MessageItem;
 export type TreeItemChildren = TaskTreeItem | LaunchConfigItem | GroupTreeItem;
@@ -270,17 +270,17 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 	readonly onDidChangeTreeData: vscode.Event<TreeEventType> =
 		this._onDidChangeTreeData.event;
 
-	private readonly _onDidChangeCategories: vscode.EventEmitter<string[]> =
+	private readonly _onDidChangeConfigurations: vscode.EventEmitter<string[]> =
 		new vscode.EventEmitter<string[]>();
-	readonly onDidChangeCategories: vscode.Event<string[]> =
-		this._onDidChangeCategories.event;
+	readonly onDidChangeConfigurations: vscode.Event<string[]> =
+		this._onDidChangeConfigurations.event;
 
 	private folderAbbreviations: Map<string, string> = new Map();
 	private customAbbreviations: Map<string, string> = new Map();
 	private filterText: string = '';
 	private abbreviationsLoaded: boolean = false;
-	private selectedCategory: string = DEFAULT_CATEGORY;
-	private availableCategories: string[] = [DEFAULT_CATEGORY];
+	private selectedConfiguration: string = DEFAULT_CONFIGURATION;
+	private availableConfigurations: string[] = [DEFAULT_CONFIGURATION];
 
 	refresh(): void {
 		// Mark abbreviations as needing reload
@@ -337,54 +337,54 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 		return this.filterText;
 	}
 
-	setCategory(category: string): void {
-		this.selectedCategory = category;
+	setConfiguration(configuration: string): void {
+		this.selectedConfiguration = configuration;
 		this._onDidChangeTreeData.fire();
 	}
 
-	getCategory(): string {
-		return this.selectedCategory;
+	getConfiguration(): string {
+		return this.selectedConfiguration;
 	}
 
-	getAvailableCategories(): string[] {
-		return this.availableCategories;
+	getAvailableConfigurations(): string[] {
+		return this.availableConfigurations;
 	}
 
 	/**
-	 * Collect all unique categories from tasks and launch configs
+	 * Collect all unique configurations from tasks and launch configs
 	 */
-	private async collectCategories(): Promise<void> {
-		const categories = new Set<string>([DEFAULT_CATEGORY]);
+	private async collectConfigurations(): Promise<void> {
+		const configurations = new Set<string>([DEFAULT_CONFIGURATION]);
 
-		const tasks = await this.getDedicatedTasks(true); // skip category filter
-		const launchConfigs = await this.getDedicatedLaunchConfigs(true); // skip category filter
+		const tasks = await this.getDedicatedTasks(true); // skip configuration filter
+		const launchConfigs = await this.getDedicatedLaunchConfigs(true); // skip configuration filter
 
 		for (const item of [...tasks, ...launchConfigs]) {
-			const itemCategories = item.config.categories || [DEFAULT_CATEGORY];
-			for (const cat of itemCategories) {
-				categories.add(cat);
+			const itemConfigurations = item.config.configurations || [DEFAULT_CONFIGURATION];
+			for (const cfg of itemConfigurations) {
+				configurations.add(cfg);
 			}
 		}
 
-		const newCategories = Array.from(categories).sort((a, b) => {
+		const newConfigurations = Array.from(configurations).sort((a, b) => {
 			// Default always comes first
-			if (a === DEFAULT_CATEGORY) return -1;
-			if (b === DEFAULT_CATEGORY) return 1;
+			if (a === DEFAULT_CONFIGURATION) return -1;
+			if (b === DEFAULT_CONFIGURATION) return 1;
 			return a.localeCompare(b);
 		});
 
-		// Check if categories changed
-		const changed = newCategories.length !== this.availableCategories.length ||
-			newCategories.some((c, i) => c !== this.availableCategories[i]);
+		// Check if configurations changed
+		const changed = newConfigurations.length !== this.availableConfigurations.length ||
+			newConfigurations.some((c, i) => c !== this.availableConfigurations[i]);
 
 		if (changed) {
-			this.availableCategories = newCategories;
-			this._onDidChangeCategories.fire(newCategories);
+			this.availableConfigurations = newConfigurations;
+			this._onDidChangeConfigurations.fire(newConfigurations);
 		}
 
-		// If selected category no longer exists, reset to default
-		if (!this.availableCategories.includes(this.selectedCategory)) {
-			this.selectedCategory = DEFAULT_CATEGORY;
+		// If selected configuration no longer exists, reset to default
+		if (!this.availableConfigurations.includes(this.selectedConfiguration)) {
+			this.selectedConfiguration = DEFAULT_CONFIGURATION;
 		}
 	}
 
@@ -400,8 +400,8 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 		// Ensure abbreviations are loaded (including custom ones)
 		await this.ensureAbbreviationsLoaded();
 
-		// Collect categories for dropdown visibility
-		await this.collectCategories();
+		// Collect configurations for dropdown visibility
+		await this.collectConfigurations();
 
 		const tasks = await this.getDedicatedTasks();
 		const launchConfigs = await this.getDedicatedLaunchConfigs();
@@ -429,8 +429,8 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 		await this.ensureAbbreviationsLoaded();
 
 		if (!element) {
-			// Root level - collect categories first
-			await this.collectCategories();
+			// Root level - collect configurations first
+			await this.collectConfigurations();
 
 			const folders = vscode.workspace.workspaceFolders;
 
@@ -610,7 +610,7 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 		return convertNode(root);
 	}
 
-	private async getDedicatedTasks(skipCategoryFilter: boolean = false): Promise<TaskTreeItem[]> {
+	private async getDedicatedTasks(skipConfigurationFilter: boolean = false): Promise<TaskTreeItem[]> {
 		const allTasks = await vscode.tasks.fetchTasks();
 		const dedicatedTasks: TaskTreeItem[] = [];
 
@@ -618,9 +618,9 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 			const config = await this.getDedicatedTaskConfig(task);
 
 			if (config && !config.hide) {
-				// Filter by category unless skipped (for category collection)
-				const taskCategories = config.categories || [DEFAULT_CATEGORY];
-				if (!skipCategoryFilter && !taskCategories.includes(this.selectedCategory)) {
+				// Filter by configuration unless skipped (for configuration collection)
+				const taskConfigurations = config.configurations || [DEFAULT_CONFIGURATION];
+				if (!skipConfigurationFilter && !taskConfigurations.includes(this.selectedConfiguration)) {
 					continue;
 				}
 
@@ -635,7 +635,7 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 		return dedicatedTasks;
 	}
 
-	private async getDedicatedTasksForFolder(folder: vscode.WorkspaceFolder, skipCategoryFilter: boolean = false): Promise<TaskTreeItem[]> {
+	private async getDedicatedTasksForFolder(folder: vscode.WorkspaceFolder, skipConfigurationFilter: boolean = false): Promise<TaskTreeItem[]> {
 		const allTasks = await vscode.tasks.fetchTasks();
 		const dedicatedTasks: TaskTreeItem[] = [];
 
@@ -648,9 +648,9 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 			const config = await this.getDedicatedTaskConfig(task);
 
 			if (config && !config.hide) {
-				// Filter by category unless skipped
-				const taskCategories = config.categories || [DEFAULT_CATEGORY];
-				if (!skipCategoryFilter && !taskCategories.includes(this.selectedCategory)) {
+				// Filter by configuration unless skipped
+				const taskConfigurations = config.configurations || [DEFAULT_CONFIGURATION];
+				if (!skipConfigurationFilter && !taskConfigurations.includes(this.selectedConfiguration)) {
 					continue;
 				}
 
@@ -722,7 +722,7 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 		}
 	}
 
-	private async getDedicatedLaunchConfigs(skipCategoryFilter: boolean = false): Promise<LaunchConfigItem[]> {
+	private async getDedicatedLaunchConfigs(skipConfigurationFilter: boolean = false): Promise<LaunchConfigItem[]> {
 		const dedicatedConfigs: LaunchConfigItem[] = [];
 
 		if (!vscode.workspace.workspaceFolders) {
@@ -730,14 +730,14 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 		}
 
 		for (const folder of vscode.workspace.workspaceFolders) {
-			const folderConfigs = await this.getDedicatedLaunchConfigsForFolder(folder, skipCategoryFilter);
+			const folderConfigs = await this.getDedicatedLaunchConfigsForFolder(folder, skipConfigurationFilter);
 			dedicatedConfigs.push(...folderConfigs);
 		}
 
 		return dedicatedConfigs;
 	}
 
-	private async getDedicatedLaunchConfigsForFolder(folder: vscode.WorkspaceFolder, skipCategoryFilter: boolean = false): Promise<LaunchConfigItem[]> {
+	private async getDedicatedLaunchConfigsForFolder(folder: vscode.WorkspaceFolder, skipConfigurationFilter: boolean = false): Promise<LaunchConfigItem[]> {
 		const dedicatedConfigs: LaunchConfigItem[] = [];
 		const launchJsonUri = vscode.Uri.joinPath(folder.uri, '.vscode', 'launch.json');
 
@@ -751,9 +751,9 @@ export class TasksTreeDataProvider implements vscode.TreeDataProvider<TreeItemTy
 					if (config.dedicatedTasks && !config.dedicatedTasks.hide) {
 						const dedicatedConfig = config.dedicatedTasks as DedicatedTasksConfig;
 
-						// Filter by category unless skipped
-						const configCategories = dedicatedConfig.categories || [DEFAULT_CATEGORY];
-						if (!skipCategoryFilter && !configCategories.includes(this.selectedCategory)) {
+						// Filter by configuration unless skipped
+						const configConfigurations = dedicatedConfig.configurations || [DEFAULT_CONFIGURATION];
+						if (!skipConfigurationFilter && !configConfigurations.includes(this.selectedConfiguration)) {
 							continue;
 						}
 

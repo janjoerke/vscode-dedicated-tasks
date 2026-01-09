@@ -2,7 +2,7 @@
   "name": "dedicated-tasks",
   "displayName": "Dedicated Tasks",
   "description": "Organize VS Code tasks and launch configs with hierarchical groups, icons, and status bar quick-access",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "publisher": "janjoerke",
   "license": "MIT",
   "icon": "resources/tasks-icon.png",
@@ -94,16 +94,16 @@
         "icon": "$(close)"
       },
       {
-        "command": "dedicatedTasks.selectCategory",
-        "title": "Select Category",
+        "command": "dedicatedTasks.selectConfiguration",
+        "title": "Select Configuration",
         "icon": "$(list-selection)"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "dedicatedTasks.selectCategory",
-          "when": "view == dedicatedTasks.tasksView && dedicatedTasks.hasMultipleCategories",
+          "command": "dedicatedTasks.selectConfiguration",
+          "when": "view == dedicatedTasks.tasksView && dedicatedTasks.hasMultipleConfigurations",
           "group": "navigation@0"
         },
         {
